@@ -63,7 +63,7 @@ app.post('/api/order', async (req, res) => {
 });
 
 // Для любых других путей отдаем главную страницу
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
