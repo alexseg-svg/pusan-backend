@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Оплата СБП | Альфа-Банк</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex items-center justify-center p-4 font-sans">
+
+  <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-sm w-full p-6 space-y-6 shadow-2xl relative overflow-hidden">
+    <!-- Бейдж песочницы -->
+    <div class="absolute top-0 left-0 right-0 bg-fuchsia-950/60 border-b border-fuchsia-500/30 text-fuchsia-300 text-[10px] uppercase font-black text-center py-1 tracking-widest">
+      Тестовый платежный шлюз СБП
+    </div>
+
+    <!-- Шапка шлюза -->
+    <div class="pt-3 flex items-center justify-between border-b border-zinc-800/80 pb-4">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">⚡️</span>
+        <span class="font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500">СБП</span>
+      </div>
+      <div class="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+        <span>Альфа-Банк</span>
+      </div>
+    </div>
+
+    <!-- Сумма -->
+    <div class="text-center space-y-1">
+      <div class="text-xs text-zinc-400">Сумма заказа в корнере ПУСАН:</div>
+      <div class="text-4xl font-black text-white" id="pay-sum">0 ₽</div>
+      <div class="text-[11px] text-zinc-500" id="order-label">Ожидает оплаты</div>
+    </div>
+
+    <!-- Имитация счета Альфа -->
+    <div class="bg-zinc-950 p-3 rounded-2xl border border-zinc-800/80 space-y-2">
+      <div class="text-[11px] text-zinc-400 font-medium">Счет списания:</div>
+      <div class="flex items-center justify-between bg-zinc-900 p-2.5 rounded-xl border border-zinc-700/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center text-[10px] font-black text-white">А</div>
+          <span class="text-xs font-semibold">Альфа-Карта (*4491)</span>
+        </div>
+        <span class="text-[11px] text-emerald-400 font-bold">0% комиссии</span>
+      </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="space-y-2.5 pt-2">
+      <button onclick="confirmPayment()" id="pay-btn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 active:scale-95 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-950/50 flex items-center justify-center gap-2 transition-all">
+        <span>Подтвердить оплату</span>
+      </button>
+
+      <button onclick="cancelPayment()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white text-xs font-semibold py-3 rounded-xl transition-all">
+        Отменить заказ
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    const total = urlParams.get('total') || '0';
+
+    document.getElementById('pay-sum').innerText = `${total} ₽`;
+
+    async function confirmPayment() {
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true;
+      btn.innerText = 'Списание средств...';
+
+      try {
+        const res = await fetch('/api/payment/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: orderId })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          // Возвращаем гостя на сайт: номер заказа подтвержден и отправлен поварам!
+          window.location.href = `/?paid=true&orderNum=${data.orderNum}`;
+        } else {
+          alert('Ошибка подтверждения платежа');
+          btn.disabled = false;
+          btn.innerText = 'Подтвердить оплату';
+        }
+      } catch (err) {
+        alert('Ошибка связи с банком');
+        btn.disabled = false;
+        btn.innerText = 'Подтвердить оплату';
+      }
+    }
+
+    function cancelPayment() {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>
