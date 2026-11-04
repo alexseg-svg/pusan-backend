@@ -56,7 +56,7 @@ app.post('/api/payment/confirm', async (req, res) => {
 
     // ПРИСВАИВАЕМ НОМЕР ТОЛЬКО ОПЛАЧЕННОМУ ЗАКАЗУ!
     const orderNum = String(paidOrderCounter++).padStart(2, '0');
-    const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const time = new Date().toLocaleTimeString('ru-RU', { timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit' });
     const typeLabel = order.orderType === 'takeaway' ? '🛍 С СОБОЙ (В ПАКЕТЕ)' : '🍽 В ЗАЛЕ (НА ПОДНОСЕ)';
 
     const itemsList = order.items
