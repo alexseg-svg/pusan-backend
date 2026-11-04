@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ПУСАН | Доставка и заказ еды</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* Скрываем скроллбар для эстетики */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -33,39 +31,36 @@
     </div>
   </header>
 
-  <!-- Категории (горизонтальный скролл) -->
+  <!-- Категории (скролл) -->
   <nav class="sticky top-[57px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 py-2.5 px-4">
-    <div class="max-w-md mx-auto flex gap-2 overflow-x-auto no-scrollbar" id="category-bar">
-      <!-- Наполняется из JS -->
-    </div>
+    <div class="max-w-md mx-auto flex gap-2 overflow-x-auto no-scrollbar" id="category-bar"></div>
   </nav>
 
   <!-- Список блюд -->
   <main class="max-w-md mx-auto px-4 mt-4 space-y-3" id="menu-list"></main>
 
   <!-- Нижняя панель Корзины -->
-  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/90 backdrop-blur-lg border-t border-zinc-800/80 z-40 transition-transform duration-300 translate-y-full">
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-zinc-800/80 z-40 transition-transform duration-300 translate-y-full">
     <div class="max-w-md mx-auto flex items-center justify-between gap-3">
       <div>
-        <div class="text-[11px] text-zinc-400">Итого к заказу:</div>
+        <div class="text-[11px] text-zinc-400">Итого:</div>
         <div class="text-xl font-black text-orange-400" id="cart-total">0 ₽</div>
       </div>
-      <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 active:scale-95 transition-all text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-orange-950/40 flex items-center justify-center gap-2">
+      <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 active:scale-95 transition-all text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-orange-950/40 flex items-center justify-center gap-2">
         <span>Оформить заказ</span>
         <span id="cart-badge" class="bg-white/20 text-xs px-2 py-0.5 rounded-full">0</span>
       </button>
     </div>
   </div>
 
-  <!-- Модальное окно оформления -->
-  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+  <!-- Модалка оформления -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
         <h3 class="text-lg font-black text-white">Оформление заказа</h3>
         <button onclick="closeCheckoutModal()" class="text-zinc-400 hover:text-white text-xl p-1">&times;</button>
       </div>
 
-      <!-- Выбор типа заказа -->
       <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs font-semibold">
         <button id="type-dinein" onclick="setOrderType('dine_in')" class="py-2 rounded-lg bg-orange-600 text-white transition-all">В заведении</button>
         <button id="type-takeaway" onclick="setOrderType('takeaway')" class="py-2 rounded-lg text-zinc-400 transition-all">Навынос</button>
@@ -85,83 +80,90 @@
           <input id="cust-table" type="text" placeholder="Например: 4" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
         </div>
         <div>
-          <label class="text-xs text-zinc-400 block mb-1">Комментарий к заказу</label>
-          <input id="cust-comment" type="text" placeholder="Без васаби, приборы на 2 чел..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
+          <label class="text-xs text-zinc-400 block mb-1">Пожелания к заказу</label>
+          <input id="cust-comment" type="text" placeholder="Без васаби, побольше имбиря..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
         </div>
       </div>
 
       <div class="pt-2">
-        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 font-bold py-3.5 rounded-xl shadow-lg text-white flex items-center justify-center gap-2">
-          <span>Подтвердить заказ</span>
+        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 font-bold py-3.5 rounded-xl shadow-lg text-white">
+          Подтвердить заказ
         </button>
       </div>
     </div>
   </div>
 
   <script>
-    // Инициализация Telegram WebApp
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.expand();
-      tg.ready();
-    }
+    if (tg) { tg.expand(); tg.ready(); }
 
-    // БАЗА ДАННЫХ МЕНЮ (Страница 1)
+    // Фотографии по категориям (профессиональные фуд-фото)
+    const P = {
+      phila: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80',
+      calif: 'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?w=400&q=80',
+      unagi: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&q=80',
+      baked: 'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=400&q=80',
+      hot: 'https://images.unsplash.com/photo-1562886877-f12251816e01?w=400&q=80',
+      maki: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&q=80',
+      gunkan: 'https://images.unsplash.com/photo-1617196034096-75f85fa32247?w=400&q=80',
+      sushi: 'https://images.unsplash.com/photo-1617196035154-1e7e6e28b0db?w=400&q=80'
+    };
+
     const MENU = [
       // Фирменные роллы
-      { id: 101, category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори" },
-      { id: 102, category: "Роллы", name: "Соленая карамель", price: 750, weight: "260 гр", desc: "Для любителей необычных вкусов: тростниковый сахар, морская соль, свежий лосось и сыр Креметте" },
-      { id: 103, category: "Роллы", name: "Апельсиновый самурай", price: 790, weight: "260 гр", desc: "Экзотическое сочетание лосося, авокадо и апельсина, сыр Креметте, соус терияки, масаго" },
-      { id: 104, category: "Роллы", name: "Алоха", price: 750, weight: "250 гр", desc: "Лосось, манго, сливочный сыр Креметте, чука, масаго, рис, нори" },
-      { id: 105, category: "Роллы", name: "Канада", price: 850, weight: "255 гр", desc: "Атлантический лосось, сыр Креметте, копченый угорь, авокадо, соус унаги, кунжут" },
-      { id: 106, category: "Роллы", name: "Калифорния с креветками", price: 670, weight: "230 гр", desc: "Тигровые креветки, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 107, category: "Роллы", name: "Бонито с лососем", price: 690, weight: "200 гр", desc: "Атлантический лосось, сыр Креметте, стружка тунца, рис, нори" },
-      { id: 108, category: "Роллы", name: "Двойной улов", price: 720, weight: "250 гр", desc: "Лосось, креветка, сливочный сыр Креметте, огурец, рис, нори" },
-      { id: 109, category: "Роллы", name: "Аляска", price: 710, weight: "250 гр", desc: "Лосось, авокадо, сливочный сыр Креметте, огурец, кунжут, рис, нори" },
-      { id: 110, category: "Роллы", name: "Манго-тунец", price: 690, weight: "255 гр", desc: "Спайс соус, сладость манго, сыр Креметте, темпурная креветка и нежный тунец" },
-      { id: 111, category: "Роллы", name: "Филадельфия с креветкой", price: 790, weight: "260 гр", desc: "Лосось, сливочный сыр Креметте, тигровые креветки, рис, нори" },
-      { id: 112, category: "Роллы", name: "Калифорния", price: 610, weight: "230 гр", desc: "Краб микс, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 113, category: "Роллы", name: "Ролл с креветкой", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец, рис, нори" },
-      { id: 114, category: "Роллы", name: "Филадельфия MIX", price: 750, weight: "260 гр", desc: "Лосось, копченый угорь, сливочный сыр Креметте, огурец, рис, нори" },
-      { id: 115, category: "Роллы", name: "Калифорния с лососем", price: 710, weight: "230 гр", desc: "Атлантический лосось, сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 116, category: "Роллы", name: "MIX ролл", price: 670, weight: "255 гр", desc: "Атлантический лосось, краб микс, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 117, category: "Роллы", name: "Морской флот", price: 870, weight: "300 гр", desc: "Богатый состав: сочный тунец, нежнейший лосось, креветки и копченый угорь" },
-      { id: 118, category: "Роллы", name: "Калифорния с угрем", price: 690, weight: "230 гр", desc: "Копченый угорь, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 119, category: "Роллы", name: "Острый угорь", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, огурец, шрирача, рис, нори" },
+      { id: 101, category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори", img: P.phila },
+      { id: 102, category: "Роллы", name: "Соленая карамель", price: 750, weight: "260 гр", desc: "Тростниковый сахар, морская соль, свежий лосось и сыр Креметте", img: P.phila },
+      { id: 103, category: "Роллы", name: "Апельсиновый самурай", price: 790, weight: "260 гр", desc: "Лосось, авокадо, апельсин, сыр Креметте, соус терияки, масаго", img: P.phila },
+      { id: 104, category: "Роллы", name: "Алоха", price: 750, weight: "250 гр", desc: "Лосось, манго, сыр Креметте, чука, масаго, рис, нори", img: P.phila },
+      { id: 105, category: "Роллы", name: "Канада", price: 850, weight: "255 гр", desc: "Лосось, сыр Креметте, угорь, авокадо, унаги, кунжут", img: P.unagi },
+      { id: 106, category: "Роллы", name: "Калифорния с креветками", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец, масаго", img: P.calif },
+      { id: 107, category: "Роллы", name: "Бонито с лососем", price: 690, weight: "200 гр", desc: "Атлантический лосось, сыр Креметте, стружка тунца", img: P.phila },
+      { id: 108, category: "Роллы", name: "Двойной улов", price: 720, weight: "250 гр", desc: "Лосось, креветка, сыр Креметте, огурец", img: P.phila },
+      { id: 109, category: "Роллы", name: "Аляска", price: 710, weight: "250 гр", desc: "Лосось, авокадо, сливочный сыр Креметте, кунжут", img: P.calif },
+      { id: 110, category: "Роллы", name: "Манго-тунец", price: 690, weight: "255 гр", desc: "Спайс соус, манго, сыр Креметте, креветка темпура, тунец", img: P.calif },
+      { id: 111, category: "Роллы", name: "Филадельфия с креветкой", price: 790, weight: "260 гр", desc: "Лосось, сыр Креметте, тигровые креветки", img: P.phila },
+      { id: 112, category: "Роллы", name: "Калифорния", price: 610, weight: "230 гр", desc: "Краб микс, сыр Креметте, огурец, масаго", img: P.calif },
+      { id: 113, category: "Роллы", name: "Ролл с креветкой", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец", img: P.calif },
+      { id: 114, category: "Роллы", name: "Филадельфия MIX", price: 750, weight: "260 гр", desc: "Лосось, копченый угорь, сыр Креметте, огурец", img: P.unagi },
+      { id: 115, category: "Роллы", name: "Калифорния с лососем", price: 710, weight: "230 гр", desc: "Атлантический лосось, сыр Креметте, масаго", img: P.calif },
+      { id: 116, category: "Роллы", name: "MIX ролл", price: 670, weight: "255 гр", desc: "Лосось, краб микс, сыр Креметте, масаго", img: P.calif },
+      { id: 117, category: "Роллы", name: "Морской флот", price: 870, weight: "300 гр", desc: "Тунец, лосось, креветки, копченый угорь", img: P.unagi },
+      { id: 118, category: "Роллы", name: "Калифорния с угрем", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, масаго", img: P.unagi },
+      { id: 119, category: "Роллы", name: "Острый угорь", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, соус шрирача", img: P.unagi },
 
       // Маки
-      { id: 201, category: "Маки", name: "Маки с огурцом", price: 270, weight: "115 гр", desc: "Рис, нори, огурец, кунжут" },
-      { id: 202, category: "Маки", name: "Маки с авокадо", price: 290, weight: "115 гр", desc: "Рис, нори, авокадо" },
-      { id: 203, category: "Маки", name: "Маки с лососем", price: 360, weight: "115 гр", desc: "Лосось, рис, нори" },
-      { id: 204, category: "Маки", name: "Маки с угрем", price: 320, weight: "115 гр", desc: "Угорь копченый, огурец, рис, нори" },
-      { id: 205, category: "Маки", name: "Маки с тунцом", price: 320, weight: "115 гр", desc: "Тунец, рис, нори" },
-      { id: 206, category: "Маки", name: "Маки с креветкой", price: 320, weight: "115 гр", desc: "Креветка, рис, нори" },
-      { id: 207, category: "Маки", name: "Маки MIX Лосось и тунец", price: 340, weight: "115 гр", desc: "Лосось, тунец, рис, нори" },
+      { id: 201, category: "Маки", name: "Маки с огурцом", price: 270, weight: "115 гр", desc: "Рис, нори, огурец, кунжут", img: P.maki },
+      { id: 202, category: "Маки", name: "Маки с авокадо", price: 290, weight: "115 гр", desc: "Рис, нори, авокадо", img: P.maki },
+      { id: 203, category: "Маки", name: "Маки с лососем", price: 360, weight: "115 гр", desc: "Лосось, рис, нори", img: P.maki },
+      { id: 204, category: "Маки", name: "Маки с угрем", price: 320, weight: "115 гр", desc: "Угорь копченый, огурец, рис, нори", img: P.maki },
+      { id: 205, category: "Маки", name: "Маки с тунцом", price: 320, weight: "115 гр", desc: "Тунец, рис, нори", img: P.maki },
+      { id: 206, category: "Маки", name: "Маки с креветкой", price: 320, weight: "115 гр", desc: "Креветка, рис, нори", img: P.maki },
+      { id: 207, category: "Маки", name: "Маки MIX Лосось и тунец", price: 340, weight: "115 гр", desc: "Лосось, тунец, рис, нори", img: P.maki },
 
       // Горячие роллы
-      { id: 301, category: "Горячие", name: "Горячий ролл с угрем", price: 670, weight: "260 гр", desc: "Копченый угорь, сливочный сыр Креметте, авокадо, рис, нори, японская панировка" },
-      { id: 302, category: "Горячие", name: "Эби хот", price: 630, weight: "260 гр", desc: "Креветки, сыр Креметте, авокадо, рис, нори, японская панировка" },
-      { id: 303, category: "Горячие", name: "Кани хот", price: 590, weight: "260 гр", desc: "Краб фарш, масаго, авокадо, рис, нори, японская панировка" },
-      { id: 304, category: "Горячие", name: "Темпура лосось", price: 670, weight: "260 гр", desc: "Атлантический лосось, сливочный сыр Креметте, авокадо, рис, нори, японская панировка" },
+      { id: 301, category: "Горячие", name: "Горячий ролл с угрем", price: 670, weight: "260 гр", desc: "Угорь, сыр Креметте, авокадо, панировка", img: P.hot },
+      { id: 302, category: "Горячие", name: "Эби хот", price: 630, weight: "260 гр", desc: "Креветки, сыр Креметте, авокадо, панировка", img: P.hot },
+      { id: 303, category: "Горячие", name: "Кани хот", price: 590, weight: "260 гр", desc: "Краб фарш, масаго, авокадо, панировка", img: P.hot },
+      { id: 304, category: "Горячие", name: "Темпура лосось", price: 670, weight: "260 гр", desc: "Лосось, сыр Креметте, авокадо, панировка", img: P.hot },
 
       // Запеченные роллы
-      { id: 401, category: "Запеченные", name: "Запеченный краб", price: 590, weight: "280 гр", desc: "Краб фарш, масаго, сыр Креметте, огурец, рис, нори, сырный соус" },
-      { id: 402, category: "Запеченные", name: "Огайо", price: 600, weight: "280 гр", desc: "Краб фарш, масаго, сливочный сыр Креметте, огурец, рис, нори, сырный соус" },
-      { id: 403, category: "Запеченные", name: "Чиз хот", price: 650, weight: "290 гр", desc: "Краб фарш, сыр Креметте, сырный соус, сыр чеддер, соус унаги, кунжут" },
-      { id: 404, category: "Запеченные", name: "Запеченный угорь", price: 670, weight: "280 гр", desc: "Копченый угорь, авокадо, сыр Креметте, рис, нори, сырный соус, соус унаги, кунжут" },
-      { id: 405, category: "Запеченные", name: "Запеченный чикен", price: 620, weight: "280 гр", desc: "Куриное мясо, авокадо, сыр Креметте, майонез, рис, нори, сырный соус, соус терияки" },
-      { id: 406, category: "Запеченные", name: "Запеченный лосось", price: 670, weight: "280 гр", desc: "Атлантический лосось, огурец, спайс соус, рис, нори, сырный соус" },
-      { id: 407, category: "Запеченные", name: "Запеченная креветка", price: 650, weight: "280 гр", desc: "Тигровые креветки, огурец, сыр Креметте, спайс соус, рис, нори, сырный соус" },
+      { id: 401, category: "Запеченные", name: "Запеченный краб", price: 590, weight: "280 гр", desc: "Краб фарш, масаго, сырный соус", img: P.baked },
+      { id: 402, category: "Запеченные", name: "Огайо", price: 600, weight: "280 гр", desc: "Краб фарш, масаго, огурец, сырный соус", img: P.baked },
+      { id: 403, category: "Запеченные", name: "Чиз хот", price: 650, weight: "290 гр", desc: "Краб фарш, чеддер, унаги соус, кунжут", img: P.baked },
+      { id: 404, category: "Запеченные", name: "Запеченный угорь", price: 670, weight: "280 гр", desc: "Угорь, авокадо, сырный соус, унаги", img: P.baked },
+      { id: 405, category: "Запеченные", name: "Запеченный чикен", price: 620, weight: "280 гр", desc: "Куриное мясо, авокадо, соус терияки", img: P.baked },
+      { id: 406, category: "Запеченные", name: "Запеченный лосось", price: 670, weight: "280 гр", desc: "Лосось, огурец, спайс и сырный соус", img: P.baked },
+      { id: 407, category: "Запеченные", name: "Запеченная креветка", price: 650, weight: "280 гр", desc: "Тигровые креветки, сырный соус", img: P.baked },
 
       // Гунканы и суши
-      { id: 501, category: "Гунканы & Суши", name: "Гуblock с креветкой (спайс)", price: 210, weight: "35 гр", desc: "Креветка, рис, нори, спайс соус" },
-      { id: 502, category: "Гунканы & Суши", name: "Гуblock с лососем (спайс)", price: 210, weight: "35 гр", desc: "Атлантический лосось, рис, нори, спайс соус" },
-      { id: 503, category: "Гунканы & Суши", name: "Гуblock с тунцом (спайс)", price: 210, weight: "35 гр", desc: "Тунец, рис, нори, спайс соус" },
-      { id: 504, category: "Гунканы & Суши", name: "Гуblock с угрем (спайс)", price: 210, weight: "35 гр", desc: "Копченый угорь, рис, нори, спайс соус" },
-      { id: 505, category: "Гунканы & Суши", name: "Суши с креветкой", price: 190, weight: "30 гр", desc: "Креветка, рис" },
-      { id: 506, category: "Гунканы & Суши", name: "Суши с лососем", price: 190, weight: "30 гр", desc: "Атлантический лосось, рис" },
-      { id: 507, category: "Гунканы & Суши", name: "Суши с тунцом", price: 190, weight: "30 гр", desc: "Тунец, рис" },
-      { id: 508, category: "Гунканы & Суши", name: "Суши с угрем", price: 190, weight: "30 гр", desc: "Копченый угорь, рис" }
+      { id: 501, category: "Гунканы & Суши", name: "Гуblock с креветкой (спайс)", price: 210, weight: "35 гр", desc: "Креветка, рис, спайс соус", img: P.gunkan },
+      { id: 502, category: "Гунканы & Суши", name: "Гуblock с лососем (спайс)", price: 210, weight: "35 гр", desc: "Лосось, рис, спайс соус", img: P.gunkan },
+      { id: 503, category: "Гунканы & Суши", name: "Гуblock с тунцом (спайс)", price: 210, weight: "35 гр", desc: "Тунец, рис, спайс соус", img: P.gunkan },
+      { id: 504, category: "Гунканы & Суши", name: "Гуblock с угрем (спайс)", price: 210, weight: "35 гр", desc: "Угорь, рис, спайс соус", img: P.gunkan },
+      { id: 505, category: "Гунканы & Суши", name: "Суши с креветкой", price: 190, weight: "30 гр", desc: "Креветка, рис", img: P.sushi },
+      { id: 506, category: "Гунканы & Суши", name: "Суши с лососем", price: 190, weight: "30 гр", desc: "Лосось, рис", img: P.sushi },
+      { id: 507, category: "Гунканы & Суши", name: "Суши с тунцом", price: 190, weight: "30 гр", desc: "Тунец, рис", img: P.sushi },
+      { id: 508, category: "Гунканы & Суши", name: "Суши с угрем", price: 190, weight: "30 гр", desc: "Угорь, рис", img: P.sushi }
     ];
 
     let cart = {};
@@ -169,7 +171,6 @@
     let currentOrderType = "dine_in";
 
     function init() {
-      // Подставляем имя из Telegram если есть
       if (tg?.initDataUnsafe?.user?.first_name) {
         document.getElementById('cust-name').value = tg.initDataUnsafe.user.first_name;
       }
@@ -199,57 +200,56 @@
 
       container.innerHTML = filtered.map(item => {
         const qty = cart[item.id] || 0;
+
         return `
-          <div class="bg-zinc-900/90 border border-zinc-800/80 p-3.5 rounded-2xl flex items-center justify-between gap-3 hover:border-zinc-700/80 transition-all">
-            <div class="flex-1 pr-1">
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-sm text-zinc-100">${item.name}</h4>
-                <span class="text-[10px] text-zinc-500 font-medium">${item.weight}</span>
-              </div>
-              <p class="text-[11px] text-zinc-400 line-clamp-2 mt-0.5 leading-relaxed">${item.desc}</p>
-              <div class="text-orange-400 font-black text-sm mt-1.5">${item.price} ₽</div>
+          <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-zinc-700/80 transition-all">
+            <!-- Фото блюда -->
+            <div class="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700/40 relative">
+              <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
             </div>
-            
-            <div>
-              ${qty === 0 ? `
-                <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-orange-600 active:scale-95 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-lg transition-all shadow-sm">
-                  +
-                </button>
-              ` : `
-                <div class="flex items-center bg-zinc-800 border border-zinc-700/60 rounded-xl p-0.5">
-                  <button onclick="removeFromCart(${item.id})" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-base font-bold active:scale-90">−</button>
-                  <span class="w-6 text-center text-xs font-bold text-orange-400">${qty}</span>
-                  <button onclick="addToCart(${item.id})" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-base font-bold active:scale-90">+</button>
+
+            <!-- Инфо и кнопки -->
+            <div class="flex-1 flex flex-col justify-between py-0.5">
+              <div>
+                <div class="flex items-start justify-between gap-1">
+                  <h4 class="font-bold text-sm text-zinc-100 leading-tight">${item.name}</h4>
+                  <span class="text-[10px] text-zinc-500 font-medium shrink-0">${item.weight}</span>
                 </div>
-              `}
+                <p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">${item.desc}</p>
+              </div>
+
+              <div class="flex items-center justify-between mt-2 pt-1">
+                <div class="text-orange-400 font-black text-sm">${item.price} ₽</div>
+                
+                <div>
+                  ${qty === 0 ? `
+                    <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-orange-600 active:scale-95 text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-base transition-all shadow-sm">
+                      +
+                    </button>
+                  ` : `
+                    <div class="flex items-center bg-zinc-800 border border-zinc-700/60 rounded-xl p-0.5">
+                      <button onclick="removeFromCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>
+                      <span class="w-5 text-center text-xs font-bold text-orange-400">${qty}</span>
+                      <button onclick="addToCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>
+                    </div>
+                  `}
+                </div>
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function addToCart(id) {
-      cart[id] = (cart[id] || 0) + 1;
-      updateUI();
-    }
-
-    function removeFromCart(id) {
-      if (cart[id] > 1) cart[id]--;
-      else delete cart[id];
-      updateUI();
-    }
+    function addToCart(id) { cart[id] = (cart[id] || 0) + 1; updateUI(); }
+    function removeFromCart(id) { if (cart[id] > 1) cart[id]--; else delete cart[id]; updateUI(); }
 
     function updateUI() {
-      let total = 0;
-      let count = 0;
+      let total = 0, count = 0;
       for (const [id, qty] of Object.entries(cart)) {
         const item = MENU.find(i => i.id == id);
-        if (item) {
-          total += item.price * qty;
-          count += qty;
-        }
+        if (item) { total += item.price * qty; count += qty; }
       }
-
       document.getElementById('cart-total').innerText = `${total} ₽`;
       document.getElementById('cart-badge').innerText = count;
 
@@ -286,8 +286,8 @@
       const table = document.getElementById('cust-table').value.trim();
       const comment = document.getElementById('cust-comment').value.trim();
 
-      if (!name || !phone) return alert('Пожалуйста, укажите имя и номер телефона!');
-      if (currentOrderType === 'dine_in' && !table) return alert('Пожалуйста, укажите номер вашего столика!');
+      if (!name || !phone) return alert('Пожалуйста, укажите имя и телефон!');
+      if (currentOrderType === 'dine_in' && !table) return alert('Пожалуйста, укажите номер столика!');
 
       const items = Object.entries(cart).map(([id, qty]) => {
         const product = MENU.find(p => p.id == id);
@@ -295,7 +295,6 @@
       });
 
       const total = items.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-
       const payload = {
         customer: { name, phone, table: currentOrderType === 'dine_in' ? table : 'Навынос' },
         orderType: currentOrderType,
@@ -306,10 +305,9 @@
 
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
-      submitBtn.innerText = 'Отправка заказа...';
+      submitBtn.innerText = 'Отправка...';
 
       try {
-        // Запрос идет на тот же сервер (относительный путь /api/order)
         const res = await fetch('/api/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -317,13 +315,13 @@
         });
 
         if (res.ok) {
-          alert('🍣 Спасибо за заказ! Мы уже передали его на кухню.');
+          alert('🍣 Спасибо! Заказ принят кухней.');
           cart = {};
           updateUI();
           closeCheckoutModal();
           if (tg) tg.close();
         } else {
-          alert('Не удалось отправить заказ. Попробуйте еще раз!');
+          alert('Ошибка отправки');
         }
       } catch (err) {
         alert('Ошибка связи с сервером');
