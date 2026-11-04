@@ -10,7 +10,6 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Розово-фиолетовый неон Сеула */
     .neon-pink-purple {
       color: #ffffff;
       text-shadow: 
@@ -29,7 +28,7 @@
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-28 selection:bg-fuchsia-600 selection:text-white">
 
-  <!-- Хедер с розово-фиолетовым неоном -->
+  <!-- Хедер с неоном -->
   <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-purple-950/40 px-4 py-3.5">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div>
@@ -56,7 +55,7 @@
   <!-- Список блюд -->
   <main class="max-w-md mx-auto px-4 mt-4 space-y-3.5" id="menu-list"></main>
 
-  <!-- Нижняя панель Корзины -->
+  <!-- Корзина снизу -->
   <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-purple-950/50 z-40 transition-transform duration-300 translate-y-full">
     <div class="max-w-md mx-auto flex items-center justify-between gap-3">
       <div>
@@ -70,7 +69,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО: Оформление заказа -->
+  <!-- Модалка оформления -->
   <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-zinc-900 border border-purple-900/40 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
@@ -111,12 +110,12 @@
   </div>
 
   <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) { 
-      try { tg.expand(); tg.ready(); } catch(e){} 
+    var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    if (tg) {
+      try { tg.expand(); tg.ready(); } catch(e){}
     }
 
-    const MENU = [
+    var MENU = [
       // Роллы
       { id: 101, category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори" },
       { id: 102, category: "Роллы", name: "Соленая карамель", price: 750, weight: "260 гр", desc: "Тростниковый сахар и морская соль создают эффект соленой карамели, свежий лосось и сыр Креметте" },
@@ -173,19 +172,23 @@
       { id: 508, category: "Гунканы & Суши", name: "Суши с угрем", price: 190, weight: "30 гр", desc: "Копченый угорь, рис" }
     ];
 
-    let cart = {};
-    let activeCategory = "Все";
-    let currentOrderType = "dine_in";
+    var cart = {};
+    var activeCategory = "Все";
+    var currentOrderType = "dine_in";
 
     function renderCategories() {
-      const container = document.getElementById('category-bar');
+      var container = document.getElementById('category-bar');
       if (!container) return;
-      const categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
-      container.innerHTML = categories.map(cat => `
-        <button onclick="setCategory('${cat}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${activeCategory === cat ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_12px_rgba(217,70,239,0.35)]' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'}">
-          ${cat}
-        </button>
-      `).join('');
+      var categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
+      
+      var html = '';
+      for (var i = 0; i < categories.length; i++) {
+        var cat = categories[i];
+        var isAct = activeCategory === cat;
+        var cls = isAct ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_12px_rgba(217,70,239,0.35)]' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800';
+        html += '<button onclick="setCategory(\'' + cat + '\')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ' + cls + '">' + cat + '</button>';
+      }
+      container.innerHTML = html;
     }
 
     function setCategory(cat) {
@@ -195,75 +198,75 @@
     }
 
     function renderMenu() {
-      const container = document.getElementById('menu-list');
+      var container = document.getElementById('menu-list');
       if (!container) return;
-      const filtered = activeCategory === "Все" ? MENU : MENU.filter(i => i.category === activeCategory);
 
-      container.innerHTML = filtered.map(item => {
-        const qty = cart[item.id] || 0;
+      var filtered = [];
+      for (var i = 0; i < MENU.length; i++) {
+        if (activeCategory === "Все" || MENU[i].category === activeCategory) {
+          filtered.push(MENU[i]);
+        }
+      }
 
-        return `
-          <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-purple-500/40 transition-all">
-            <!-- БЛОК КАРТИНКИ: аккуратная темная заглушка -->
-            <div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-purple-950/60 flex items-center justify-center">
-              <div class="flex flex-col items-center justify-center text-center p-1">
-                <span class="text-2xl">🥢</span>
-                <span class="text-[9px] font-black tracking-wider uppercase text-fuchsia-400/80 mt-1">Фото скоро</span>
-              </div>
-              <img src="/images/${item.id}.jpg" 
-                   alt="${item.name}" 
-                   class="absolute inset-0 w-full h-full object-cover z-10"
-                   onload="this.style.display='block'"
-                   onerror="this.style.display='none'"
-                   style="display:none">
-            </div>
+      var html = '';
+      for (var j = 0; j < filtered.length; j++) {
+        var item = filtered[j];
+        var qty = cart[item.id] || 0;
 
-            <!-- Инфо и кнопка «+» -->
-            <div class="flex-1 flex flex-col justify-between py-0.5">
-              <div>
-                <div class="flex items-start justify-between gap-1">
-                  <h4 class="font-bold text-sm text-zinc-100 leading-tight">${item.name}</h4>
-                  <span class="text-[10px] text-zinc-500 font-medium shrink-0">${item.weight}</span>
-                </div>
-                <p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">${item.desc}</p>
-              </div>
+        var btnHtml = '';
+        if (qty === 0) {
+          btnHtml = '<button onclick="addToCart(' + item.id + ')" class="bg-zinc-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-fuchsia-600 active:scale-90 text-zinc-200 hover:text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-lg transition-all border border-zinc-700/60 shadow-sm">+</button>';
+        } else {
+          btnHtml = '<div class="flex items-center bg-zinc-800 border border-fuchsia-500/50 rounded-xl p-0.5 shadow-[0_0_10px_rgba(217,70,239,0.25)]">' +
+                    '<button onclick="removeFromCart(' + item.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>' +
+                    '<span class="w-5 text-center text-xs font-bold text-fuchsia-400">' + qty + '</span>' +
+                    '<button onclick="addToCart(' + item.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>' +
+                    '</div>';
+        }
 
-              <div class="flex items-center justify-between mt-2 pt-1">
-                <div class="text-fuchsia-400 font-black text-sm">${item.price} ₽</div>
-                
-                <div>
-                  ${qty === 0 ? `
-                    <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-fuchsia-600 active:scale-90 text-zinc-200 hover:text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-lg transition-all border border-zinc-700/60 shadow-sm">
-                      +
-                    </button>
-                  ` : `
-                    <div class="flex items-center bg-zinc-800 border border-fuchsia-500/50 rounded-xl p-0.5 shadow-[0_0_10px_rgba(217,70,239,0.25)]">
-                      <button onclick="removeFromCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>
-                      <span class="w-5 text-center text-xs font-bold text-fuchsia-400">${qty}</span>
-                      <button onclick="addToCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>
-                    </div>
-                  `}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+        html += '<div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-purple-500/40 transition-all">' +
+                  '<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-purple-950/60 flex items-center justify-center">' +
+                    '<div class="flex flex-col items-center justify-center text-center p-1">' +
+                      '<span class="text-2xl">🥢</span>' +
+                      '<span class="text-[9px] font-black tracking-wider uppercase text-fuchsia-400/80 mt-1">Фото скоро</span>' +
+                    '</div>' +
+                    '<img src="/images/' + item.id + '.jpg" alt="' + item.name + '" class="absolute inset-0 w-full h-full object-cover z-10" onload="this.style.display=\'block\'" onerror="this.style.display=\'none\'" style="display:none">' +
+                  '</div>' +
+                  '<div class="flex-1 flex flex-col justify-between py-0.5">' +
+                    '<div>' +
+                      '<div class="flex items-start justify-between gap-1">' +
+                        '<h4 class="font-bold text-sm text-zinc-100 leading-tight">' + item.name + '</h4>' +
+                        '<span class="text-[10px] text-zinc-500 font-medium shrink-0">' + item.weight + '</span>' +
+                      '</div>' +
+                      '<p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">' + item.desc + '</p>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between mt-2 pt-1">' +
+                      '<div class="text-fuchsia-400 font-black text-sm">' + item.price + ' ₽</div>' +
+                      '<div>' + btnHtml + '</div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>';
+      }
+
+      container.innerHTML = html;
     }
 
     function addToCart(id) { cart[id] = (cart[id] || 0) + 1; updateUI(); }
     function removeFromCart(id) { if (cart[id] > 1) cart[id]--; else delete cart[id]; updateUI(); }
 
     function updateUI() {
-      let total = 0, count = 0;
-      for (const [id, qty] of Object.entries(cart)) {
-        const item = MENU.find(i => i.id == id);
-        if (item) { total += item.price * qty; count += qty; }
+      var total = 0, count = 0;
+      for (var id in cart) {
+        var item = null;
+        for (var i = 0; i < MENU.length; i++) {
+          if (MENU[i].id == id) { item = MENU[i]; break; }
+        }
+        if (item) { total += item.price * cart[id]; count += cart[id]; }
       }
-      document.getElementById('cart-total').innerText = `${total} ₽`;
+      document.getElementById('cart-total').innerText = total + ' ₽';
       document.getElementById('cart-badge').innerText = count;
 
-      const cartBar = document.getElementById('cart-bar');
+      var cartBar = document.getElementById('cart-bar');
       if (count > 0) cartBar.classList.remove('translate-y-full');
       else cartBar.classList.add('translate-y-full');
 
@@ -272,9 +275,9 @@
 
     function setOrderType(type) {
       currentOrderType = type;
-      const btnIn = document.getElementById('type-dinein');
-      const btnTake = document.getElementById('type-takeaway');
-      const tableField = document.getElementById('table-field');
+      var btnIn = document.getElementById('type-dinein');
+      var btnTake = document.getElementById('type-takeaway');
+      var tableField = document.getElementById('table-field');
 
       if (type === 'dine_in') {
         btnIn.className = 'py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white transition-all shadow-md';
@@ -291,34 +294,43 @@
     function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
 
     async function submitOrder() {
-      const name = document.getElementById('cust-name').value.trim();
-      const phone = document.getElementById('cust-phone').value.trim();
-      const table = document.getElementById('cust-table').value.trim();
-      const comment = document.getElementById('cust-comment').value.trim();
+      var name = document.getElementById('cust-name').value.trim();
+      var phone = document.getElementById('cust-phone').value.trim();
+      var table = document.getElementById('cust-table').value.trim();
+      var comment = document.getElementById('cust-comment').value.trim();
 
       if (!name || !phone) return alert('Пожалуйста, укажите имя и телефон!');
       if (currentOrderType === 'dine_in' && !table) return alert('Пожалуйста, укажите номер столика!');
 
-      const items = Object.entries(cart).map(([id, qty]) => {
-        const product = MENU.find(p => p.id == id);
-        return { name: product.name, price: product.price, quantity: qty };
-      });
+      var items = [];
+      for (var id in cart) {
+        for (var i = 0; i < MENU.length; i++) {
+          if (MENU[i].id == id) {
+            items.push({ name: MENU[i].name, price: MENU[i].price, quantity: cart[id] });
+            break;
+          }
+        }
+      }
 
-      const total = items.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-      const payload = {
-        customer: { name, phone, table: currentOrderType === 'dine_in' ? table : 'Навынос' },
+      var total = 0;
+      for (var k = 0; k < items.length; k++) {
+        total += items[k].price * items[k].quantity;
+      }
+
+      var payload = {
+        customer: { name: name, phone: phone, table: currentOrderType === 'dine_in' ? table : 'Навынос' },
         orderType: currentOrderType,
-        comment,
-        items,
-        total
+        comment: comment,
+        items: items,
+        total: total
       };
 
-      const submitBtn = document.getElementById('submit-btn');
+      var submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
       submitBtn.innerText = 'Отправка...';
 
       try {
-        const res = await fetch('/api/order', {
+        var res = await fetch('/api/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -341,17 +353,23 @@
       }
     }
 
-    // ГАРАНТИРОВАННЫЙ ЗАПУСК ПОСЛЕ ПОЛНОЙ ГОТОВНОСТИ СТРАНИЦЫ
-    window.addEventListener('DOMContentLoaded', () => {
+    // БЕЗУПРЕЧНЫЙ СТАРТ: срабатывает при любом состоянии страницы!
+    function startApp() {
       try {
-        if (tg?.initDataUnsafe?.user?.first_name) {
-          const nameInput = document.getElementById('cust-name');
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
+          var nameInput = document.getElementById('cust-name');
           if (nameInput) nameInput.value = tg.initDataUnsafe.user.first_name;
         }
       } catch (e) {}
       renderCategories();
       renderMenu();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startApp);
+    } else {
+      startApp();
+    }
   </script>
 </body>
 </html>
