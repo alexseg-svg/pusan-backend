@@ -25,10 +25,6 @@
       color: #f5d0fe;
       text-shadow: 0 0 8px rgba(232, 121, 249, 0.7);
     }
-
-    .neon-glow {
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
-    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-28 selection:bg-fuchsia-600 selection:text-white">
@@ -37,11 +33,9 @@
   <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-purple-950/40 px-4 py-3.5">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div>
-        <!-- ЛОГОТИП ПУСАН -->
         <h1 class="text-2xl sm:text-3xl font-black tracking-widest uppercase neon-pink-purple">
           ПУСАН
         </h1>
-        <!-- ОБЯЗАТЕЛЬНАЯ НАДПИСЬ -->
         <p class="text-[11px] sm:text-xs font-bold tracking-wider uppercase mt-0.5 neon-sub">
           Корейская и японская кухня
         </p>
@@ -118,7 +112,9 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) { tg.expand(); tg.ready(); }
+    if (tg) { 
+      try { tg.expand(); tg.ready(); } catch(e){} 
+    }
 
     const MENU = [
       // Роллы
@@ -181,17 +177,10 @@
     let activeCategory = "Все";
     let currentOrderType = "dine_in";
 
-    function init() {
-      if (tg?.initDataUnsafe?.user?.first_name) {
-        document.getElementById('cust-name').value = tg.initDataUnsafe.user.first_name;
-      }
-      renderCategories();
-      renderMenu();
-    }
-
     function renderCategories() {
-      const categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
       const container = document.getElementById('category-bar');
+      if (!container) return;
+      const categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
       container.innerHTML = categories.map(cat => `
         <button onclick="setCategory('${cat}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${activeCategory === cat ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-[0_0_12px_rgba(217,70,239,0.35)]' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'}">
           ${cat}
@@ -207,6 +196,7 @@
 
     function renderMenu() {
       const container = document.getElementById('menu-list');
+      if (!container) return;
       const filtered = activeCategory === "Все" ? MENU : MENU.filter(i => i.category === activeCategory);
 
       container.innerHTML = filtered.map(item => {
@@ -214,22 +204,18 @@
 
         return `
           <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-purple-500/40 transition-all">
-            <!-- Блок ФОТО с автоматической неоновой заглушкой -->
+            <!-- БЛОК КАРТИНКИ: аккуратная темная заглушка -->
             <div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-purple-950/60 flex items-center justify-center">
-              <!-- Заглушка (показывается всегда, если фото нет) -->
-              <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-1 bg-gradient-to-br from-zinc-950 to-purple-950/30">
+              <div class="flex flex-col items-center justify-center text-center p-1">
                 <span class="text-2xl">🥢</span>
-                <span class="text-[9px] font-black tracking-wider uppercase text-fuchsia-400/80 mt-1">Фото скоро появится</span>
+                <span class="text-[9px] font-black tracking-wider uppercase text-fuchsia-400/80 mt-1">Фото скоро</span>
               </div>
-              
-              <!-- Фото блюда (если загружено — плавно покажется поверх) -->
               <img src="/images/${item.id}.jpg" 
                    alt="${item.name}" 
-                   loading="lazy"
-                   class="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300"
-                   onload="this.style.opacity='1'"
-                   onerror="this.remove()"
-                   style="opacity:0">
+                   class="absolute inset-0 w-full h-full object-cover z-10"
+                   onload="this.style.display='block'"
+                   onerror="this.style.display='none'"
+                   style="display:none">
             </div>
 
             <!-- Инфо и кнопка «+» -->
@@ -245,7 +231,6 @@
               <div class="flex items-center justify-between mt-2 pt-1">
                 <div class="text-fuchsia-400 font-black text-sm">${item.price} ₽</div>
                 
-                <!-- КНОПКА ТОЛЬКО «+» -->
                 <div>
                   ${qty === 0 ? `
                     <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-fuchsia-600 active:scale-90 text-zinc-200 hover:text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-lg transition-all border border-zinc-700/60 shadow-sm">
@@ -330,4 +315,43 @@
 
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
-      submitBtn.innerT
+      submitBtn.innerText = 'Отправка...';
+
+      try {
+        const res = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('🍣 Спасибо! Заказ передан на кухню.');
+          cart = {};
+          updateUI();
+          closeCheckoutModal();
+          if (tg) tg.close();
+        } else {
+          alert('Ошибка отправки заказа');
+        }
+      } catch (err) {
+        alert('Ошибка связи с сервером');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Подтвердить заказ';
+      }
+    }
+
+    // ГАРАНТИРОВАННЫЙ ЗАПУСК ПОСЛЕ ПОЛНОЙ ГОТОВНОСТИ СТРАНИЦЫ
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (tg?.initDataUnsafe?.user?.first_name) {
+          const nameInput = document.getElementById('cust-name');
+          if (nameInput) nameInput.value = tg.initDataUnsafe.user.first_name;
+        }
+      } catch (e) {}
+      renderCategories();
+      renderMenu();
+    });
+  </script>
+</body>
+</html>
