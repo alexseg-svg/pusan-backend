@@ -176,6 +176,17 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🍜 Сервер Pusan Eat запущен на порту ${PORT}`);
+
+  // Сервер САМ сообщает Телеграму адрес для кнопок при запуске:
+  try {
+    const webhookUrl = 'https://pusaneat.ru/api/telegram-webhook';
+    await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
+      url: webhookUrl
+    });
+    console.log(`🚀 Telegram Webhook успешно настроен на ${webhookUrl}!`);
+  } catch (err) {
+    console.error('Ошибка настройки Webhook:', err.response?.data || err.message);
+  }
 });
