@@ -53,19 +53,21 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО: Увеличенное фото и описание блюда -->
-  <div id="dish-modal" onclick="closeDishModal(event)" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <!-- МОДАЛЬНОЕ ОКНО: Просмотр блюда с большим фото -->
+  <div id="dish-modal" onclick="closeDishModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div onclick="event.stopPropagation()" class="bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
-      <!-- Большое фото -->
       <div class="relative w-full aspect-square bg-zinc-950 flex items-center justify-center overflow-hidden">
-        <img id="zoom-img" src="" alt="" class="w-full h-full object-cover" onerror="this.src=FALLBACK_SVG">
+        <img id="zoom-img" src="" alt="" class="w-full h-full object-cover" onerror="handleModalImgError(this)">
+        <div id="zoom-placeholder" class="hidden flex-col items-center justify-center text-zinc-600">
+          <span class="text-6xl">🍣</span>
+          <span class="text-xs text-zinc-500 mt-2 font-medium">Фото блюда появится скоро</span>
+        </div>
         <button onclick="closeDishModal()" class="absolute top-4 right-4 bg-black/60 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center text-xl font-bold backdrop-blur-sm border border-white/10">
           &times;
         </button>
         <span id="zoom-weight" class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-zinc-200 text-xs px-2.5 py-1 rounded-lg font-medium border border-white/10"></span>
       </div>
 
-      <!-- Описание и кнопка -->
       <div class="p-5 space-y-4">
         <div>
           <h3 id="zoom-title" class="text-xl font-black text-white"></h3>
@@ -75,7 +77,7 @@
         <div class="flex items-center justify-between pt-2 border-t border-zinc-800">
           <div id="zoom-price" class="text-2xl font-black text-orange-400"></div>
           <button id="zoom-add-btn" class="bg-gradient-to-r from-orange-500 to-red-600 active:scale-95 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg">
-            В корзину
+            + В корзину
           </button>
         </div>
       </div>
@@ -126,10 +128,6 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { tg.expand(); tg.ready(); }
 
-    // Стильная темная заглушка, если свое фото еще не загружено
-    const FALLBACK_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'><rect width='400' height='400' fill='%2318181b'/><text x='50%25' y='50%25' font-size='72' text-anchor='middle' dominant-baseline='middle'>🍣</text></svg>";
-
-    // МЕНЮ: Картинка автоматически берется из /images/{id}.jpg
     const MENU = [
       // Роллы
       { id: 101, category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори" },
@@ -191,10 +189,6 @@
     let activeCategory = "Все";
     let currentOrderType = "dine_in";
 
-    function getImageUrl(item) {
-      return item.img || `/images/${item.id}.jpg`;
-    }
-
     function init() {
       if (tg?.initDataUnsafe?.user?.first_name) {
         document.getElementById('cust-name').value = tg.initDataUnsafe.user.first_name;
@@ -219,20 +213,38 @@
       renderMenu();
     }
 
+    // Если картинка не найдена - скрываем ее и показываем красивую заглушку
+    function handleImgError(img) {
+      img.style.display = 'none';
+      const placeholder = img.parentElement.querySelector('.dish-placeholder');
+      if (placeholder) placeholder.classList.remove('hidden');
+    }
+
+    function handleModalImgError(img) {
+      img.style.display = 'none';
+      document.getElementById('zoom-placeholder').classList.remove('hidden');
+    }
+
     function renderMenu() {
       const container = document.getElementById('menu-list');
       const filtered = activeCategory === "Все" ? MENU : MENU.filter(i => i.category === activeCategory);
 
       container.innerHTML = filtered.map(item => {
         const qty = cart[item.id] || 0;
-        const imgSrc = getImageUrl(item);
 
         return `
           <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3.5 hover:border-zinc-700/80 transition-all">
-            <!-- Крупная кликабельная фотография с зумом -->
-            <div onclick="openDishModal(${item.id})" class="w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 relative cursor-pointer group">
-              <img src="${imgSrc}" alt="${item.name}" onerror="this.src=FALLBACK_SVG" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-              <div class="absolute bottom-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-[10px] px-1.5 py-0.5 rounded-md text-zinc-300 pointer-events-none">
+            <!-- Блок картинки с безопасным плейсхолдером -->
+            <div onclick="openDishModal(${item.id})" class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 flex items-center justify-center relative cursor-pointer group">
+              <img src="/images/${item.id}.jpg" alt="${item.name}" onerror="handleImgError(this)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+              
+              <!-- Заглушка, если фото еще нет -->
+              <div class="dish-placeholder hidden flex flex-col items-center justify-center text-center p-1">
+                <span class="text-3xl">🍣</span>
+                <span class="text-[9px] text-zinc-500 font-semibold mt-1">ПУСАН</span>
+              </div>
+
+              <div class="absolute bottom-1 right-1 bg-black/60 backdrop-blur-sm text-[9px] px-1 py-0.5 rounded text-zinc-300">
                 🔍
               </div>
             </div>
@@ -253,7 +265,7 @@
                 <div>
                   ${qty === 0 ? `
                     <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-orange-600 active:scale-95 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all shadow-sm">
-                      +
+                      + Добавить
                     </button>
                   ` : `
                     <div class="flex items-center bg-zinc-800 border border-zinc-700/60 rounded-xl p-0.5">
@@ -270,12 +282,17 @@
       }).join('');
     }
 
-    // Логика открытия большого фото (Lightbox)
     function openDishModal(id) {
       const item = MENU.find(i => i.id === id);
       if (!item) return;
 
-      document.getElementById('zoom-img').src = getImageUrl(item);
+      const img = document.getElementById('zoom-img');
+      const placeholder = document.getElementById('zoom-placeholder');
+      
+      img.style.display = 'block';
+      placeholder.classList.add('hidden');
+      img.src = `/images/${item.id}.jpg`;
+
       document.getElementById('zoom-title').innerText = item.name;
       document.getElementById('zoom-desc').innerText = item.desc;
       document.getElementById('zoom-weight').innerText = item.weight;
