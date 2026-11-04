@@ -3,36 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ПУСАН | Доставка и заказ еды</title>
+  <title>ПУСАН | Азиатская кухня</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Фиолетовый неоновый свет для логотипа */
+    .neon-text {
+      color: #ffffff;
+      text-shadow: 
+        0 0 5px #c084fc,
+        0 0 10px #a855f7,
+        0 0 20px #9333ea,
+        0 0 35px #7e22ce,
+        0 0 50px #6b21a8;
+    }
+    .neon-subtext {
+      text-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+    }
   </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-28 selection:bg-orange-500 selection:text-white">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-28 selection:bg-purple-600 selection:text-white">
 
-  <!-- Хедер -->
-  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/80 px-4 py-3">
+  <!-- Хедер с фиолетовым неоновым логотипом -->
+  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-900 px-4 py-3.5">
     <div class="max-w-md mx-auto flex items-center justify-between">
       <div>
-        <h1 class="text-xl font-black tracking-wider text-orange-500 uppercase flex items-center gap-1.5">
-          <span>PUSAN EAT</span>
-          <span class="text-xs bg-red-600 text-white px-1.5 py-0.5 rounded font-bold">ASIAN</span>
+        <!-- НЕОНОВЫЙ ЛОГОТИП ПУСАН -->
+        <h1 class="text-2xl font-black tracking-widest uppercase neon-text flex items-center gap-2">
+          ПУСАН
         </h1>
-        <p class="text-[11px] text-zinc-400">Японская & Корейская кухня</p>
+        <p class="text-[10px] tracking-widest text-purple-300 font-semibold uppercase mt-0.5 neon-subtext">
+          Азиатская кухня • Сеул & Токио
+        </p>
       </div>
       <div class="text-right">
-        <span class="inline-flex items-center gap-1 text-[11px] bg-emerald-950/80 text-emerald-400 border border-emerald-800/50 px-2 py-0.5 rounded-full font-medium">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Кухня открыта
+        <span class="inline-flex items-center gap-1.5 text-[11px] bg-purple-950/60 text-purple-300 border border-purple-500/40 px-2.5 py-1 rounded-full font-medium shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Открыто
         </span>
       </div>
     </div>
   </header>
 
-  <!-- Категории -->
-  <nav class="sticky top-[57px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 py-2.5 px-4">
+  <!-- Категории (скролл) -->
+  <nav class="sticky top-[67px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 py-2.5 px-4">
     <div class="max-w-md mx-auto flex gap-2 overflow-x-auto no-scrollbar" id="category-bar"></div>
   </nav>
 
@@ -40,84 +56,54 @@
   <main class="max-w-md mx-auto px-4 mt-4 space-y-3" id="menu-list"></main>
 
   <!-- Нижняя панель Корзины -->
-  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-zinc-800/80 z-40 transition-transform duration-300 translate-y-full">
+  <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-zinc-900 z-40 transition-transform duration-300 translate-y-full">
     <div class="max-w-md mx-auto flex items-center justify-between gap-3">
       <div>
         <div class="text-[11px] text-zinc-400">Итого:</div>
-        <div class="text-xl font-black text-orange-400" id="cart-total">0 ₽</div>
+        <div class="text-xl font-black text-purple-400" id="cart-total">0 ₽</div>
       </div>
-      <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 active:scale-95 transition-all text-white font-bold py-3 px-5 rounded-xl shadow-lg shadow-orange-950/40 flex items-center justify-center gap-2">
+      <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-95 transition-all text-white font-bold py-3 px-5 rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.3)] flex items-center justify-center gap-2">
         <span>Оформить заказ</span>
-        <span id="cart-badge" class="bg-white/20 text-xs px-2 py-0.5 rounded-full">0</span>
+        <span id="cart-badge" class="bg-white/20 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
       </button>
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО: Просмотр блюда с большим фото -->
-  <div id="dish-modal" onclick="closeDishModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div onclick="event.stopPropagation()" class="bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
-      <div class="relative w-full aspect-square bg-zinc-950 flex items-center justify-center overflow-hidden">
-        <img id="zoom-img" src="" alt="" class="w-full h-full object-cover" onerror="handleModalImgError(this)">
-        <div id="zoom-placeholder" class="hidden flex-col items-center justify-center text-zinc-600">
-          <span class="text-6xl">🍣</span>
-          <span class="text-xs text-zinc-500 mt-2 font-medium">Фото блюда появится скоро</span>
-        </div>
-        <button onclick="closeDishModal()" class="absolute top-4 right-4 bg-black/60 hover:bg-black text-white w-9 h-9 rounded-full flex items-center justify-center text-xl font-bold backdrop-blur-sm border border-white/10">
-          &times;
-        </button>
-        <span id="zoom-weight" class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-zinc-200 text-xs px-2.5 py-1 rounded-lg font-medium border border-white/10"></span>
-      </div>
-
-      <div class="p-5 space-y-4">
-        <div>
-          <h3 id="zoom-title" class="text-xl font-black text-white"></h3>
-          <p id="zoom-desc" class="text-sm text-zinc-400 mt-1.5 leading-relaxed"></p>
-        </div>
-
-        <div class="flex items-center justify-between pt-2 border-t border-zinc-800">
-          <div id="zoom-price" class="text-2xl font-black text-orange-400"></div>
-          <button id="zoom-add-btn" class="bg-gradient-to-r from-orange-500 to-red-600 active:scale-95 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg">
-            + В корзину
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- МОДАЛЬНОЕ ОКНО: Оформление заказа -->
-  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
         <h3 class="text-lg font-black text-white">Оформление заказа</h3>
         <button onclick="closeCheckoutModal()" class="text-zinc-400 hover:text-white text-xl p-1">&times;</button>
       </div>
 
+      <!-- Выбор типа заказа -->
       <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs font-semibold">
-        <button id="type-dinein" onclick="setOrderType('dine_in')" class="py-2 rounded-lg bg-orange-600 text-white transition-all">В заведении</button>
-        <button id="type-takeaway" onclick="setOrderType('takeaway')" class="py-2 rounded-lg text-zinc-400 transition-all">Навынос</button>
+        <button id="type-dinein" onclick="setOrderType('dine_in')" class="py-2.5 rounded-lg bg-purple-600 text-white transition-all shadow-md">В заведении</button>
+        <button id="type-takeaway" onclick="setOrderType('takeaway')" class="py-2.5 rounded-lg text-zinc-400 transition-all">Навынос</button>
       </div>
 
       <div class="space-y-3">
         <div>
           <label class="text-xs text-zinc-400 block mb-1">Ваше имя *</label>
-          <input id="cust-name" type="text" placeholder="Иван" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
+          <input id="cust-name" type="text" placeholder="Иван" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-purple-500 outline-none text-white">
         </div>
         <div>
           <label class="text-xs text-zinc-400 block mb-1">Телефон для связи *</label>
-          <input id="cust-phone" type="tel" placeholder="+7 (999) 000-00-00" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
+          <input id="cust-phone" type="tel" placeholder="+7 (999) 000-00-00" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-purple-500 outline-none text-white">
         </div>
         <div id="table-field">
           <label class="text-xs text-zinc-400 block mb-1">Номер столика *</label>
-          <input id="cust-table" type="text" placeholder="Например: 4" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
+          <input id="cust-table" type="text" placeholder="Например: 4" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-purple-500 outline-none text-white">
         </div>
         <div>
           <label class="text-xs text-zinc-400 block mb-1">Пожелания к заказу</label>
-          <input id="cust-comment" type="text" placeholder="Без васаби, приборы на 2 персоны..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-orange-500 outline-none text-white">
+          <input id="cust-comment" type="text" placeholder="Без васаби, приборы на 2 персоны..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-purple-500 outline-none text-white">
         </div>
       </div>
 
       <div class="pt-2">
-        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 font-bold py-3.5 rounded-xl shadow-lg text-white">
+        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 font-bold py-3.5 rounded-xl shadow-lg shadow-purple-950/40 text-white">
           Подтвердить заказ
         </button>
       </div>
@@ -201,7 +187,7 @@
       const categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
       const container = document.getElementById('category-bar');
       container.innerHTML = categories.map(cat => `
-        <button onclick="setCategory('${cat}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${activeCategory === cat ? 'bg-orange-500 text-white shadow-md shadow-orange-950/50' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'}">
+        <button onclick="setCategory('${cat}')" class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${activeCategory === cat ? 'bg-purple-600 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]' : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'}">
           ${cat}
         </button>
       `).join('');
@@ -213,18 +199,6 @@
       renderMenu();
     }
 
-    // Если картинка не найдена - скрываем ее и показываем красивую заглушку
-    function handleImgError(img) {
-      img.style.display = 'none';
-      const placeholder = img.parentElement.querySelector('.dish-placeholder');
-      if (placeholder) placeholder.classList.remove('hidden');
-    }
-
-    function handleModalImgError(img) {
-      img.style.display = 'none';
-      document.getElementById('zoom-placeholder').classList.remove('hidden');
-    }
-
     function renderMenu() {
       const container = document.getElementById('menu-list');
       const filtered = activeCategory === "Все" ? MENU : MENU.filter(i => i.category === activeCategory);
@@ -233,82 +207,34 @@
         const qty = cart[item.id] || 0;
 
         return `
-          <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3.5 hover:border-zinc-700/80 transition-all">
-            <!-- Блок картинки с безопасным плейсхолдером -->
-            <div onclick="openDishModal(${item.id})" class="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-zinc-800 flex items-center justify-center relative cursor-pointer group">
-              <img src="/images/${item.id}.jpg" alt="${item.name}" onerror="handleImgError(this)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-              
-              <!-- Заглушка, если фото еще нет -->
-              <div class="dish-placeholder hidden flex flex-col items-center justify-center text-center p-1">
-                <span class="text-3xl">🍣</span>
-                <span class="text-[9px] text-zinc-500 font-semibold mt-1">ПУСАН</span>
+          <div class="bg-zinc-900/90 border border-zinc-800/80 p-3.5 rounded-2xl flex items-center justify-between gap-3 hover:border-purple-900/50 transition-all">
+            <!-- Описание блюда -->
+            <div class="flex-1 pr-1">
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-sm text-zinc-100">${item.name}</h4>
+                <span class="text-[10px] text-zinc-500 font-medium">${item.weight}</span>
               </div>
-
-              <div class="absolute bottom-1 right-1 bg-black/60 backdrop-blur-sm text-[9px] px-1 py-0.5 rounded text-zinc-300">
-                🔍
-              </div>
+              <p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-relaxed">${item.desc}</p>
+              <div class="text-purple-400 font-black text-sm mt-1.5">${item.price} ₽</div>
             </div>
-
-            <!-- Инфо и кнопки -->
-            <div class="flex-1 flex flex-col justify-between py-0.5">
-              <div onclick="openDishModal(${item.id})" class="cursor-pointer">
-                <div class="flex items-start justify-between gap-1">
-                  <h4 class="font-bold text-sm text-zinc-100 leading-tight">${item.name}</h4>
-                  <span class="text-[10px] text-zinc-500 font-medium shrink-0">${item.weight}</span>
+            
+            <!-- КНОПКА ТОЛЬКО «+» -->
+            <div>
+              ${qty === 0 ? `
+                <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-purple-600 active:scale-90 text-zinc-200 hover:text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xl transition-all border border-zinc-700/60 shadow-sm">
+                  +
+                </button>
+              ` : `
+                <div class="flex items-center bg-zinc-800 border border-purple-500/40 rounded-xl p-0.5 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
+                  <button onclick="removeFromCart(${item.id})" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-base font-bold active:scale-90">−</button>
+                  <span class="w-6 text-center text-xs font-bold text-purple-400">${qty}</span>
+                  <button onclick="addToCart(${item.id})" class="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-base font-bold active:scale-90">+</button>
                 </div>
-                <p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">${item.desc}</p>
-              </div>
-
-              <div class="flex items-center justify-between mt-2 pt-1">
-                <div class="text-orange-400 font-black text-base">${item.price} ₽</div>
-                
-                <div>
-                  ${qty === 0 ? `
-                    <button onclick="addToCart(${item.id})" class="bg-zinc-800 hover:bg-orange-600 active:scale-95 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all shadow-sm">
-                      + Добавить
-                    </button>
-                  ` : `
-                    <div class="flex items-center bg-zinc-800 border border-zinc-700/60 rounded-xl p-0.5">
-                      <button onclick="removeFromCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>
-                      <span class="w-5 text-center text-xs font-bold text-orange-400">${qty}</span>
-                      <button onclick="addToCart(${item.id})" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>
-                    </div>
-                  `}
-                </div>
-              </div>
+              `}
             </div>
           </div>
         `;
       }).join('');
-    }
-
-    function openDishModal(id) {
-      const item = MENU.find(i => i.id === id);
-      if (!item) return;
-
-      const img = document.getElementById('zoom-img');
-      const placeholder = document.getElementById('zoom-placeholder');
-      
-      img.style.display = 'block';
-      placeholder.classList.add('hidden');
-      img.src = `/images/${item.id}.jpg`;
-
-      document.getElementById('zoom-title').innerText = item.name;
-      document.getElementById('zoom-desc').innerText = item.desc;
-      document.getElementById('zoom-weight').innerText = item.weight;
-      document.getElementById('zoom-price').innerText = `${item.price} ₽`;
-
-      const btn = document.getElementById('zoom-add-btn');
-      btn.onclick = () => {
-        addToCart(item.id);
-        closeDishModal();
-      };
-
-      document.getElementById('dish-modal').classList.remove('hidden');
-    }
-
-    function closeDishModal() {
-      document.getElementById('dish-modal').classList.add('hidden');
     }
 
     function addToCart(id) { cart[id] = (cart[id] || 0) + 1; updateUI(); }
@@ -337,12 +263,12 @@
       const tableField = document.getElementById('table-field');
 
       if (type === 'dine_in') {
-        btnIn.className = 'py-2 rounded-lg bg-orange-600 text-white transition-all';
-        btnTake.className = 'py-2 rounded-lg text-zinc-400 transition-all';
+        btnIn.className = 'py-2.5 rounded-lg bg-purple-600 text-white transition-all shadow-md';
+        btnTake.className = 'py-2.5 rounded-lg text-zinc-400 transition-all';
         tableField.classList.remove('hidden');
       } else {
-        btnTake.className = 'py-2 rounded-lg bg-orange-600 text-white transition-all';
-        btnIn.className = 'py-2 rounded-lg text-zinc-400 transition-all';
+        btnTake.className = 'py-2.5 rounded-lg bg-purple-600 text-white transition-all shadow-md';
+        btnIn.className = 'py-2.5 rounded-lg text-zinc-400 transition-all';
         tableField.classList.add('hidden');
       }
     }
@@ -391,7 +317,7 @@
           closeCheckoutModal();
           if (tg) tg.close();
         } else {
-          alert('Ошибка отправки');
+          alert('Ошибка отправки заказа');
         }
       } catch (err) {
         alert('Ошибка связи с сервером');
