@@ -59,17 +59,17 @@
   <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-purple-950/50 z-40 transition-transform duration-300 translate-y-full">
     <div class="max-w-md mx-auto flex items-center justify-between gap-3">
       <div>
-        <div class="text-[11px] text-zinc-400">Итого к заказу:</div>
+        <div class="text-[11px] text-zinc-400">Итого к оплате:</div>
         <div class="text-xl font-black text-fuchsia-400" id="cart-total">0 ₽</div>
       </div>
       <button onclick="openCheckoutModal()" class="flex-1 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:opacity-90 active:scale-95 transition-all text-white font-bold py-3.5 px-5 rounded-xl shadow-[0_0_20px_rgba(217,70,239,0.35)] flex items-center justify-center gap-2">
-        <span>Оформить заказ</span>
+        <span>Перейти к заказу</span>
         <span id="cart-badge" class="bg-white/20 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
       </button>
     </div>
   </div>
 
-  <!-- МОДАЛКА: Большое фото и описание -->
+  <!-- МОДАЛКА: Большое фото и подробное описание -->
   <div id="dish-modal" onclick="closeDishModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div onclick="event.stopPropagation()" class="bg-zinc-900 border border-purple-900/40 rounded-t-3xl sm:rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
       <div class="relative w-full aspect-square bg-zinc-950 flex items-center justify-center overflow-hidden border-b border-purple-950/40">
@@ -102,7 +102,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА: Оформление заказа (ФУДКОРТ) -->
+  <!-- МОДАЛКА: Оформление заказа (ТОЛЬКО СБП ПРЕДОПЛАТА) -->
   <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-zinc-900 border border-purple-900/40 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
@@ -110,13 +110,26 @@
         <button onclick="closeCheckoutModal()" class="text-zinc-400 hover:text-white text-xl p-1">&times;</button>
       </div>
 
-      <!-- ВЫБОР: В ЗАЛЕ / С СОБОЙ / ДОСТАВКА (СКОРО) -->
+      <!-- ВЫБОР УПАКОВКИ -->
       <div>
-        <label class="text-xs text-zinc-400 block mb-1.5 font-medium">Как упаковать заказ:</label>
-        <div class="grid grid-cols-3 gap-1.5 bg-zinc-950 p-1.5 rounded-xl border border-zinc-800 text-xs font-semibold">
-          <button id="type-dinein" onclick="setOrderType('dine_in')" class="py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white transition-all shadow-md">🍽 В зале</button>
-          <button id="type-takeaway" onclick="setOrderType('takeaway')" class="py-2.5 rounded-lg text-zinc-400 transition-all">🛍 С собой</button>
-          <button disabled class="py-2.5 rounded-lg text-zinc-600 opacity-50 cursor-not-allowed">🛵 Доставка <span class="text-[9px] block text-zinc-500 font-normal">Скоро</span></button>
+        <label class="text-xs text-zinc-400 block mb-1.5 font-medium">Как упаковать блюда:</label>
+        <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs font-semibold">
+          <button id="type-dinein" onclick="setOrderType('dine_in')" class="py-2.5 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white transition-all shadow-md">🍽 В зале (на подносе)</button>
+          <button id="type-takeaway" onclick="setOrderType('takeaway')" class="py-2.5 rounded-lg text-zinc-400 transition-all">🛍 С собой (навынос)</button>
+        </div>
+      </div>
+
+      <!-- ИНФОРМАЦИЯ О ПРЕДОПЛАТЕ СБП -->
+      <div class="bg-purple-950/30 border border-purple-500/30 rounded-2xl p-3 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-900/50 border border-purple-500/40 flex items-center justify-center text-xl shrink-0">
+          ⚡️
+        </div>
+        <div>
+          <div class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>Оплата через СБП</span>
+            <span class="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.2 rounded font-bold">0% комиссии</span>
+          </div>
+          <p class="text-[11px] text-zinc-400 mt-0.5 leading-snug">Заказ поступает на кухню сразу после оплаты</p>
         </div>
       </div>
 
@@ -126,47 +139,47 @@
           <input id="cust-name" type="text" placeholder="Иван" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
         </div>
         <div>
-          <label class="text-xs text-zinc-400 block mb-1">Телефон для связи *</label>
+          <label class="text-xs text-zinc-400 block mb-1">Телефон для оповещения *</label>
           <input id="cust-phone" type="tel" placeholder="+7 (999) 000-00-00" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
         </div>
         <div>
           <label class="text-xs text-zinc-400 block mb-1">Пожелания к заказу</label>
-          <input id="cust-comment" type="text" placeholder="Без васаби, побольше имбиря..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
+          <input id="cust-comment" type="text" placeholder="Без васаби, приборы на 2 персоны..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
         </div>
       </div>
 
+      <!-- КНОПКА ОПЛАТЫ СБП -->
       <div class="pt-2">
-        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:opacity-90 font-bold py-3.5 rounded-xl shadow-lg shadow-fuchsia-950/40 text-white">
-          Отправить заказ на кухню
+        <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:opacity-90 font-bold py-3.5 rounded-xl shadow-lg shadow-fuchsia-950/40 text-white flex items-center justify-center gap-2">
+          <span>⚡️ Оплатить через СБП</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- МОДАЛКА УСПЕХА: ЭЛЕКТРОННЫЙ ПЕЙДЖЕР (НОМЕР ЗАКАЗА) -->
+  <!-- МОДАЛКА УСПЕХА: НОМЕР ОПЛАЧЕННОГО ЗАКАЗА -->
   <div id="success-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-purple-500/50 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-[0_0_30px_rgba(217,70,239,0.3)]">
-      <div class="w-16 h-16 rounded-full bg-fuchsia-950/60 border border-fuchsia-500/40 mx-auto flex items-center justify-center text-3xl">
-        🔔
+      <div class="w-16 h-16 rounded-full bg-emerald-950/60 border border-emerald-500/40 mx-auto flex items-center justify-center text-3xl">
+        ✅
       </div>
       <div>
-        <h3 class="text-xl font-black text-white">Заказ отправлен на кухню!</h3>
-        <p class="text-xs text-zinc-400 mt-1">Пожалуйста, сохраните ваш номер заказа:</p>
+        <h3 class="text-xl font-black text-white">Оплата прошла успешно!</h3>
+        <p class="text-xs text-zinc-400 mt-1">Чек передан на кухню. Ваш номер:</p>
       </div>
       
-      <!-- Огромный неоновый номер -->
       <div class="py-4 bg-zinc-950 rounded-2xl border border-purple-900/40">
         <span class="text-5xl font-black text-fuchsia-400 tracking-wider" id="success-order-num">#01</span>
         <span class="block text-[11px] text-zinc-500 uppercase tracking-widest mt-1">Номер заказа</span>
       </div>
 
       <p class="text-xs text-zinc-300 leading-relaxed">
-        Мы уже готовим ваше блюдо! <br>
+        Повара уже готовят ваше блюдо! <br>
         <span class="text-purple-300 font-semibold">Когда заказ будет готов — бот пришлет уведомление.</span>
       </p>
 
       <button onclick="closeSuccessModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition-all">
-        Понятно, жду!
+        Отлично, жду!
       </button>
     </div>
   </div>
@@ -383,12 +396,13 @@
     function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
     function closeSuccessModal() { document.getElementById('success-modal').classList.add('hidden'); }
 
+    // 100% ПРЕДОПЛАТА СБП: СОЗДАНИЕ ПЛАТЕЖА
     async function submitOrder() {
       var name = document.getElementById('cust-name').value.trim();
       var phone = document.getElementById('cust-phone').value.trim();
       var comment = document.getElementById('cust-comment').value.trim();
 
-      if (!name || !phone) return alert('Пожалуйста, укажите имя и телефон!');
+      if (!name || !phone) return alert('Пожалуйста, укажите имя и номер телефона!');
 
       var items = [];
       for (var id in cart) {
@@ -405,7 +419,6 @@
         total += items[k].price * items[k].quantity;
       }
 
-      // Передаем Telegram ID клиента (чтобы бот прислал пуш о готовности!)
       var telegramId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
 
       var payload = {
@@ -419,33 +432,30 @@
 
       var submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
-      submitBtn.innerText = 'Отправка...';
+      submitBtn.innerText = '⚡️ Переход к оплате СБП...';
 
       try {
-        var res = await fetch('/api/order', {
+        var res = await fetch('/api/payment/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
         var data = await res.json();
-
-        if (res.ok && data.success) {
+        if (data.success && data.paymentUrl) {
           cart = {};
           updateUI();
           closeCheckoutModal();
-
-          // Показываем гостю его номер заказа
-          document.getElementById('success-order-num').innerText = '#' + data.orderNum;
-          document.getElementById('success-modal').classList.remove('hidden');
+          // Мгновенный переход на шлюз СБП
+          window.location.href = data.paymentUrl;
         } else {
-          alert('Ошибка отправки заказа');
+          alert('Ошибка формирования счета СБП');
         }
       } catch (err) {
         alert('Ошибка связи с сервером');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerText = 'Отправить заказ на кухню';
+        submitBtn.innerText = '⚡️ Оплатить через СБП';
       }
     }
 
@@ -455,7 +465,17 @@
           var nameInput = document.getElementById('cust-name');
           if (nameInput) nameInput.value = tg.initDataUnsafe.user.first_name;
         }
+
+        // Проверяем, вернулся ли гость после успешной 100% оплаты СБП
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('paid') === 'true') {
+          var paidNum = urlParams.get('orderNum');
+          document.getElementById('success-order-num').innerText = '#' + (paidNum || '01');
+          document.getElementById('success-modal').classList.remove('hidden');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       } catch (e) {}
+
       renderCategories();
       renderMenu();
     }
