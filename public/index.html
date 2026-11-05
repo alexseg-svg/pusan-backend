@@ -28,32 +28,50 @@
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans antialiased pb-28 selection:bg-fuchsia-600 selection:text-white">
 
-  <!-- Хедер -->
-  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-purple-950/40 px-4 py-3.5">
+  <!-- Хедер с местом под будущий логотип -->
+  <header class="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-purple-950/40 px-4 py-3">
     <div class="max-w-md mx-auto flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-black tracking-widest uppercase neon-pink-purple">
-          ПУСАН
-        </h1>
-        <p class="text-[11px] sm:text-xs font-bold tracking-wider uppercase mt-0.5 neon-sub">
-          Корейская и японская кухня
-        </p>
+      <div class="flex items-center gap-2.5">
+        <!-- АВТО-ЛОГОТИП: если загрузишь /images/logo.png — он появится тут -->
+        <img src="/images/logo.png" alt="ПУСАН" class="h-9 object-contain" onload="this.classList.remove('hidden'); document.getElementById('text-logo').classList.add('hidden');" onerror="this.remove()">
+        
+        <div id="text-logo">
+          <h1 class="text-2xl font-black tracking-widest uppercase neon-pink-purple leading-tight">
+            ПУСАН
+          </h1>
+          <p class="text-[11px] font-bold tracking-wider uppercase neon-sub">
+            Корейская и японская кухня
+          </p>
+        </div>
       </div>
+
       <div class="text-right">
-        <span class="inline-flex items-center gap-1.5 text-[11px] bg-purple-950/50 text-fuchsia-300 border border-fuchsia-500/40 px-2.5 py-1 rounded-full font-medium shadow-[0_0_12px_rgba(232,121,249,0.2)]">
+        <span class="inline-flex items-center gap-1.5 text-[10px] bg-purple-950/50 text-fuchsia-300 border border-fuchsia-500/40 px-2.5 py-1 rounded-full font-medium shadow-[0_0_12px_rgba(232,121,249,0.2)]">
           <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span> Корнер открыт
         </span>
       </div>
     </div>
   </header>
 
-  <!-- Категории меню -->
-  <nav class="sticky top-[69px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 py-2.5 px-4">
+  <!-- ГЛАВНЫЙ МАСТЕР-ПЕРЕКЛЮЧАТЕЛЬ: КОРЕЯ / ЯПОНИЯ -->
+  <div class="max-w-md mx-auto px-4 pt-3 pb-1">
+    <div class="grid grid-cols-2 gap-2 bg-zinc-900 p-1.5 rounded-2xl border border-purple-900/40 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+      <button id="cuisine-korea" onclick="setCuisine('korea')" class="py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md flex items-center justify-center gap-1.5">
+        <span>🥢 КОРЕЯ</span>
+      </button>
+      <button id="cuisine-japan" onclick="setCuisine('japan')" class="py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all text-zinc-400 hover:text-white flex items-center justify-center gap-1.5">
+        <span>🍣 ЯПОНИЯ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Подкатегории выбранной кухни -->
+  <nav class="sticky top-[58px] z-30 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-900 py-2.5 px-4">
     <div class="max-w-md mx-auto flex gap-2 overflow-x-auto no-scrollbar" id="category-bar"></div>
   </nav>
 
   <!-- Список блюд -->
-  <main class="max-w-md mx-auto px-4 mt-4 space-y-3.5" id="menu-list"></main>
+  <main class="max-w-md mx-auto px-4 mt-3 space-y-3" id="menu-list"></main>
 
   <!-- Нижняя панель Корзины -->
   <div id="cart-bar" class="fixed bottom-0 left-0 right-0 p-3 bg-zinc-950/95 backdrop-blur-lg border-t border-purple-950/50 z-40 transition-transform duration-300 translate-y-full">
@@ -76,7 +94,7 @@
         <div class="flex flex-col items-center justify-center text-center p-4">
           <span class="text-6xl">🥢</span>
           <span class="text-xs font-black tracking-widest uppercase text-fuchsia-400/80 mt-3">Фото появится скоро</span>
-          <span class="text-[10px] text-zinc-500 mt-1 tracking-wider uppercase">ПУСАН • Сеул & Токио</span>
+          <span class="text-[10px] text-zinc-500 mt-1 tracking-wider uppercase">ПУСАН</span>
         </div>
         <img id="zoom-img" src="" alt="" class="absolute inset-0 w-full h-full object-cover z-10" onload="this.style.display='block'" onerror="this.style.display='none'" style="display:none">
         
@@ -102,7 +120,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА: Оформление заказа (ТОЛЬКО СБП ПРЕДОПЛАТА) -->
+  <!-- МОДАЛКА: Оформление заказа (100% СБП ПРЕДОПЛАТА) -->
   <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-zinc-900 border border-purple-900/40 rounded-t-3xl sm:rounded-2xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
@@ -110,7 +128,6 @@
         <button onclick="closeCheckoutModal()" class="text-zinc-400 hover:text-white text-xl p-1">&times;</button>
       </div>
 
-      <!-- ВЫБОР УПАКОВКИ -->
       <div>
         <label class="text-xs text-zinc-400 block mb-1.5 font-medium">Как упаковать блюда:</label>
         <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs font-semibold">
@@ -119,7 +136,6 @@
         </div>
       </div>
 
-      <!-- ИНФОРМАЦИЯ О ПРЕДОПЛАТЕ СБП -->
       <div class="bg-purple-950/30 border border-purple-500/30 rounded-2xl p-3 flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-purple-900/50 border border-purple-500/40 flex items-center justify-center text-xl shrink-0">
           ⚡️
@@ -144,11 +160,10 @@
         </div>
         <div>
           <label class="text-xs text-zinc-400 block mb-1">Пожелания к заказу</label>
-          <input id="cust-comment" type="text" placeholder="Без васаби, приборы на 2 персоны..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
+          <input id="cust-comment" type="text" placeholder="Без лука, приборы на 2 персоны..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-sm focus:border-fuchsia-500 outline-none text-white">
         </div>
       </div>
 
-      <!-- КНОПКА ОПЛАТЫ СБП -->
       <div class="pt-2">
         <button onclick="submitOrder()" id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:opacity-90 font-bold py-3.5 rounded-xl shadow-lg shadow-fuchsia-950/40 text-white flex items-center justify-center gap-2">
           <span>⚡️ Оплатить через СБП</span>
@@ -157,7 +172,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА УСПЕХА: НОМЕР ОПЛАЧЕННОГО ЗАКАЗА -->
+  <!-- МОДАЛКА УСПЕХА: НОМЕР ЗАКАЗА -->
   <div id="success-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-purple-500/50 rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-[0_0_30px_rgba(217,70,239,0.3)]">
       <div class="w-16 h-16 rounded-full bg-emerald-950/60 border border-emerald-500/40 mx-auto flex items-center justify-center text-3xl">
@@ -175,7 +190,7 @@
 
       <p class="text-xs text-zinc-300 leading-relaxed">
         Повара уже готовят ваше блюдо! <br>
-        <span class="text-purple-300 font-semibold">Когда заказ будет готов — бот пришлет уведомление.</span>
+        <span class="text-purple-300 font-semibold">Когда заказ будет готов — бот уведомит вас.</span>
       </p>
 
       <button onclick="closeSuccessModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition-all">
@@ -190,71 +205,164 @@
       try { tg.expand(); tg.ready(); } catch(e){}
     }
 
+    // ПОЛНАЯ БАЗА МЕНЮ (КОРЕЯ + ЯПОНИЯ)
     var MENU = [
-      // Роллы
-      { id: 101, category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори" },
-      { id: 102, category: "Роллы", name: "Соленая карамель", price: 750, weight: "260 гр", desc: "Тростниковый сахар и морская соль создают эффект соленой карамели, свежий лосось и сыр Креметте" },
-      { id: 103, category: "Роллы", name: "Апельсиновый самурай", price: 790, weight: "260 гр", desc: "Лосось, авокадо, апельсин, сыр Креметте, соус терияки, масаго" },
-      { id: 104, category: "Роллы", name: "Алоха", price: 750, weight: "250 гр", desc: "Лосось, манго, сыр Креметте, чука, масаго, рис, нори" },
-      { id: 105, category: "Роллы", name: "Канада", price: 850, weight: "255 гр", desc: "Лосось, сыр Креметте, копченый угорь, авокадо, соус унаги, кунжут, рис, нори" },
-      { id: 106, category: "Роллы", name: "Калифорния с креветками", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 107, category: "Роллы", name: "Бонито с лососем", price: 690, weight: "200 гр", desc: "Атлантический лосось, сыр Креметте, стружка тунца, рис, нори" },
-      { id: 108, category: "Роллы", name: "Двойной улов", price: 720, weight: "250 гр", desc: "Лосось, креветка, сливочный сыр Креметте, огурец, рис, нори" },
-      { id: 109, category: "Роллы", name: "Аляска", price: 710, weight: "250 гр", desc: "Лосось, авокадо, сливочный сыр Креметте, огурец, кунжут, рис, нори" },
-      { id: 110, category: "Роллы", name: "Манго-тунец", price: 690, weight: "255 гр", desc: "Спайс соус, манго, сыр Креметте, темпурная креветка, тунец" },
-      { id: 111, category: "Роллы", name: "Филадельфия с креветкой", price: 790, weight: "260 гр", desc: "Лосось, сыр Креметте, тигровые креветки, рис, нори" },
-      { id: 112, category: "Роллы", name: "Калифорния", price: 610, weight: "230 гр", desc: "Краб микс, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 113, category: "Роллы", name: "Ролл с креветкой", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец, рис, нори" },
-      { id: 114, category: "Роллы", name: "Филадельфия MIX", price: 750, weight: "260 гр", desc: "Лосось, копченый угорь, сливочный сыр Креметте, рис, нори" },
-      { id: 115, category: "Роллы", name: "Калифорния с лососем", price: 710, weight: "230 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 116, category: "Роллы", name: "MIX ролл", price: 670, weight: "255 гр", desc: "Атлантический лосось, краб микс, сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 117, category: "Роллы", name: "Морской флот", price: 870, weight: "300 гр", desc: "Сочный тунец, нежнейший лосось, креветки, копченый угорь" },
-      { id: 118, category: "Роллы", name: "Калифорния с угрем", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, огурец, масаго, рис, нори" },
-      { id: 119, category: "Роллы", name: "Острый угорь", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, огурец, шрирача, рис, нори" },
+      // ════════════════ КОРЕЯ: РАМЁНЫ & СУПЫ ════════════════
+      { id: 1001, cuisine: "korea", category: "Рамёны & Супы", name: "Юккедян", price: 710, weight: "800 гр", desc: "Бульон говяжий, говядина, грибы муэр, папоротник, яйцо, корейские специи, подается с рисом" },
+      { id: 1002, cuisine: "korea", category: "Рамёны & Супы", name: "Кимчи тиге", price: 710, weight: "800 гр", desc: "Корейский острый суп с кимчи, говядиной и тофу" },
+      { id: 1003, cuisine: "korea", category: "Рамёны & Супы", name: "Кальбитан", price: 750, weight: "800 гр", desc: "Наваристый суп с говяжьими ребрами" },
+      { id: 1004, cuisine: "korea", category: "Рамёны & Супы", name: "Хемультан", price: 750, weight: "800 гр", desc: "Корейский острый суп с морепродуктами, овощами и зеленью" },
+      { id: 1005, cuisine: "korea", category: "Рамёны & Супы", name: "Рамён с курицей", price: 630, weight: "800 гр", desc: "Бульон мясной, лапша яичная, ростки сои, яйцо, шпинат, грибы муэр, нори, кунжут" },
+      { id: 1006, cuisine: "korea", category: "Рамёны & Супы", name: "Рамён с говядиной", price: 690, weight: "800 гр", desc: "Бульон мясной, лапша яичная, ростки сои, яйцо, шпинат, грибы муэр, нори, кунжут" },
+      { id: 1007, cuisine: "korea", category: "Рамёны & Супы", name: "Рамён с креветками", price: 690, weight: "800 гр", desc: "Бульон мясной, лапша яичная, ростки сои, яйцо, шпинат, грибы муэр, нори, кунжут" },
+      { id: 1008, cuisine: "korea", category: "Рамёны & Супы", name: "Рамён с лососем", price: 750, weight: "800 гр", desc: "Бульон мясной, лапша яичная, ростки сои, яйцо, шпинат, грибы муэр, нори, кунжут" },
+      { id: 1009, cuisine: "korea", category: "Рамёны & Супы", name: "Шин Рамён с сыром", price: 610, weight: "800 гр", desc: "Острый мясной бульон, лапша, яйцо, моцарелла, корейские специи" },
+      { id: 1010, cuisine: "korea", category: "Рамёны & Супы", name: "Шин Рамён с сосиской", price: 650, weight: "800 гр", desc: "Острый мясной бульон, лапша, яйцо, сосиски, моцарелла, специи" },
+      { id: 1011, cuisine: "korea", category: "Рамёны & Супы", name: "Шин Рамён с курицей", price: 670, weight: "800 гр", desc: "Острый мясной бульон, лапша, яйцо, куриное филе, моцарелла, специи" },
+      { id: 1012, cuisine: "korea", category: "Рамёны & Супы", name: "Шин Рамён с говядиной", price: 730, weight: "800 гр", desc: "Острый мясной бульон, лапша, яйцо, нежная говядина, моцарелла, специи" },
+      { id: 1013, cuisine: "korea", category: "Рамёны & Супы", name: "Шин Рамён с креветками", price: 750, weight: "800 гр", desc: "Острый мясной бульон, лапша, яйцо, тигровые креветки, моцарелла, специи" },
+      { id: 1014, cuisine: "korea", category: "Рамёны & Супы", name: "Куксу с курицей (Холодный)", price: 650, weight: "800 гр", desc: "Бульон куксу, яичная лапша, огурцы, редис, омлет, томаты, курица" },
+      { id: 1015, cuisine: "korea", category: "Рамёны & Супы", name: "Куксу с говядиной (Холодный)", price: 710, weight: "800 гр", desc: "Бульон куксу, яичная лапша, огурцы, редис, омлет, томаты, говядина" },
 
-      // Маки
-      { id: 201, category: "Маки", name: "Маки с огурцом", price: 270, weight: "115 гр", desc: "Рис, нори, огурец, кунжут" },
-      { id: 202, category: "Маки", name: "Маки с авокадо", price: 290, weight: "115 гр", desc: "Рис, нори, авокадо" },
-      { id: 203, category: "Маки", name: "Маки с лососем", price: 360, weight: "115 гр", desc: "Лосось, рис, нори" },
-      { id: 204, category: "Маки", name: "Маки с угрем", price: 320, weight: "130 гр", desc: "Угорь копченый, огурец, рис, нори" },
-      { id: 205, category: "Маки", name: "Маки с тунцом", price: 320, weight: "115 гр", desc: "Тунец, рис, нори" },
-      { id: 206, category: "Маки", name: "Маки с креветкой", price: 320, weight: "115 гр", desc: "Креветка, рис, нори" },
-      { id: 207, category: "Маки", name: "Маки MIX Лосось и тунец", price: 340, weight: "115 гр", desc: "Лосось, тунец, рис, нори" },
+      // ════════════════ КОРЕЯ: ТОКПОККИ & РАПОККИ ════════════════
+      { id: 1020, cuisine: "korea", category: "Токпокки", name: "Токпокки Классик в соусе", price: 490, weight: "240 гр", desc: "Рисовые брусочки в фирменном корейском соусе на выбор (чиз, том ям, яннем, терияки, чили, кочудян)" },
+      { id: 1021, cuisine: "korea", category: "Токпокки", name: "Токпокки с сосиской", price: 590, weight: "300 гр", desc: "Рисовые брусочки с сочными сосисками в соусе на выбор" },
+      { id: 1022, cuisine: "korea", category: "Токпокки", name: "Токпокки с курицей", price: 630, weight: "300 гр", desc: "Рисовые брусочки с кусочками куриного филе в соусе на выбор" },
+      { id: 1023, cuisine: "korea", category: "Токпокки", name: "Токпокки с говядиной", price: 670, weight: "300 гр", desc: "Рисовые брусочки с нежной говядиной в соусе на выбор" },
+      { id: 1024, cuisine: "korea", category: "Токпокки", name: "Токпокки с креветками", price: 670, weight: "300 гр", desc: "Рисовые брусочки с тигровыми креветками в соусе на выбор" },
+      { id: 1025, cuisine: "korea", category: "Токпокки", name: "Рапокки Классик", price: 650, weight: "450 гр", desc: "Рисовые клецки, корейская лапша, набочки, перец, соус кочудян, яйцо" },
+      { id: 1026, cuisine: "korea", category: "Токпокки", name: "Рапокки с курицей", price: 750, weight: "500 гр", desc: "Рисовые клецки, корейская лапша, куриное филе, перец, соус кочудян, яйцо" },
+      { id: 1027, cuisine: "korea", category: "Токпокки", name: "Рапокки с говядиной", price: 780, weight: "500 гр", desc: "Рисовые клецки, корейская лапша, говядина, перец, соус кочудян, яйцо" },
+      { id: 1028, cuisine: "korea", category: "Токпокки", name: "Рапокки с креветками", price: 780, weight: "500 гр", desc: "Рисовые клецки, лапша, тигровые креветки, соус кочудян, яйцо" },
 
-      // Горячие роллы
-      { id: 301, category: "Горячие", name: "Горячий ролл с угрем", price: 670, weight: "260 гр", desc: "Копченый угорь, сыр Креметте, авокадо, рис, нори, панировка" },
-      { id: 302, category: "Горячие", name: "Эби хот", price: 630, weight: "260 гр", desc: "Креветки, сыр Креметте, авокадо, рис, нори, панировка" },
-      { id: 303, category: "Горячие", name: "Кани хот", price: 590, weight: "260 гр", desc: "Краб фарш, масаго, авокадо, рис, нори, панировка" },
-      { id: 304, category: "Горячие", name: "Темпура лосось", price: 670, weight: "260 гр", desc: "Атлантический лосось, сыр Креметте, авокадо, панировка" },
+      // ════════════════ КОРЕЯ: ГОРЯЧЕЕ, ВОК & РИС ════════════════
+      { id: 1030, cuisine: "korea", category: "Горячее & Вок", name: "Пибимпаб с курицей + бульон", price: 690, weight: "450 гр", desc: "Рис, курица, огурцы, морковь, древесные грибы, редис, айсберг, яйцо, соус, бульон" },
+      { id: 1031, cuisine: "korea", category: "Горячее & Вок", name: "Пибимпаб с говядиной + бульон", price: 750, weight: "450 гр", desc: "Рис, говядина, огурцы, морковь, древесные грибы, редис, айсберг, яйцо, соус, бульон" },
+      { id: 1032, cuisine: "korea", category: "Горячее & Вок", name: "Пибимпаб с креветками + бульон", price: 790, weight: "450 гр", desc: "Рис, креветки, огурцы, морковь, древесные грибы, редис, айсберг, яйцо, соус, бульон" },
+      { id: 1033, cuisine: "korea", category: "Горячее & Вок", name: "Чапче с овощами", price: 590, weight: "400 гр", desc: "Лапша из батата, древесные грибы, морковь, капуста китайская, перец болгарский, лук" },
+      { id: 1034, cuisine: "korea", category: "Горячее & Вок", name: "Чапче с курицей", price: 690, weight: "450 гр", desc: "Бататовая лапша, куриное филе, древесные грибы, овощи, соус" },
+      { id: 1035, cuisine: "korea", category: "Горячее & Вок", name: "Чапче с говядиной", price: 720, weight: "450 гр", desc: "Бататовая лапша, сочная говядина, древесные грибы, овощи, соус" },
+      { id: 1036, cuisine: "korea", category: "Горячее & Вок", name: "Кимчи поккымпаб", price: 650, weight: "450 гр", desc: "Жареный рис с говядиной, пикантным кимчи и глазуньей" },
+      { id: 1037, cuisine: "korea", category: "Горячее & Вок", name: "Курица в соусе Яннем", price: 690, weight: "450 гр", desc: "Куриное филе в традиционном сладко-остром соусе, рис" },
+      { id: 1038, cuisine: "korea", category: "Горячее & Вок", name: "Курица в соусе Том Ям", price: 690, weight: "450 гр", desc: "Куриное филе в соусе Том Ям, рис" },
+      { id: 1039, cuisine: "korea", category: "Горячее & Вок", name: "Курица в медовом соусе", price: 690, weight: "450 гр", desc: "Нежное куриное филе в ароматном медовом соусе, рис" },
+      { id: 1040, cuisine: "korea", category: "Горячее & Вок", name: "Говядина с грибами и луком", price: 910, weight: "500 гр", desc: "Говядина, шампиньоны, рис, лук" },
+      { id: 1041, cuisine: "korea", category: "Горячее & Вок", name: "Вок лапша с овощами", price: 450, weight: "400 гр", desc: "Лапша на выбор (удон, соба, рамён), морковь, перец, фасоль, лук, соус на выбор" },
+      { id: 1042, cuisine: "korea", category: "Горячее & Вок", name: "Вок лапша с курицей", price: 590, weight: "450 гр", desc: "Лапша, куриное филе, свежие овощи, соус" },
+      { id: 1043, cuisine: "korea", category: "Горячее & Вок", name: "Вок лапша с говядиной", price: 650, weight: "450 гр", desc: "Лапша, сочная говядина, свежие овощи, соус" },
+      { id: 1044, cuisine: "korea", category: "Горячее & Вок", name: "Жареный рис с овощами", price: 450, weight: "450 гр", desc: "Рис, морковь, перец, фасоль, лук, чеснок" },
+      { id: 1045, cuisine: "korea", category: "Горячее & Вок", name: "Жареный рис с курицей", price: 590, weight: "500 гр", desc: "Рис, куриное филе, овощи, соус" },
+      { id: 1046, cuisine: "korea", category: "Горячее & Вок", name: "Жареный рис с говядиной", price: 650, weight: "500 гр", desc: "Рис, сочная говядина, овощи, соус" },
 
-      // Запеченные роллы
-      { id: 401, category: "Запеченные", name: "Запеченный краб", price: 590, weight: "280 гр", desc: "Краб фарш, масаго, сыр Креметте, сырный соус" },
-      { id: 402, category: "Запеченные", name: "Огайо", price: 600, weight: "280 гр", desc: "Краб фарш, масаго, сыр Креметте, сырный соус" },
-      { id: 403, category: "Запеченные", name: "Чиз хот", price: 650, weight: "290 гр", desc: "Краб фарш, сыр Креметте, сыр чеддер, соус унаги, кунжут" },
-      { id: 404, category: "Запеченные", name: "Запеченный угорь", price: 670, weight: "280 гр", desc: "Копченый угорь, авокадо, сыр Креметте, соус унаги, кунжут" },
-      { id: 405, category: "Запеченные", name: "Запеченный чикен", price: 620, weight: "280 гр", desc: "Куриное мясо, авокадо, сыр Креметте, соус терияки" },
-      { id: 406, category: "Запеченные", name: "Запеченный лосось", price: 670, weight: "280 гр", desc: "Атлантический лосось, огурец, спайс и сырный соус" },
-      { id: 407, category: "Запеченные", name: "Запеченная креветка", price: 650, weight: "280 гр", desc: "Тигровые креветки, сыр Креметте, сырный соус" },
+      // ════════════════ КОРЕЯ: СТРИТФУД, КОРН-ДОГИ & КИМПАБ ════════════════
+      { id: 1050, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Корн-дог с сосиской", price: 370, weight: "145/50 гр", desc: "Хрустящий классический корейский корн-дог с сосиской и соусом" },
+      { id: 1051, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Корн-дог с сыром", price: 370, weight: "160/50 гр", desc: "Тянущийся сыр моцарелла в хрустящей панировке" },
+      { id: 1052, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Корн-дог Рамен", price: 390, weight: "160/50 гр", desc: "Корн-дог в ультра-хрустящей панировке из сухой лапши рамён" },
+      { id: 1053, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Корн-дог Фри", price: 390, weight: "180/50 гр", desc: "Корн-дог в оболочке из кубиков картофеля фри" },
+      { id: 1054, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Корейский чикен в соусе", price: 490, weight: "200/50 гр", desc: "Хрустящие кусочки курицы в пикантном соусе" },
+      { id: 1055, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Кимпаб с овощами + бульон", price: 490, weight: "300/160 гр", desc: "Традиционный корейский ролл с овощами, подается с чашкой наваристого бульона" },
+      { id: 1056, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Кимпаб с говядиной + бульон", price: 590, weight: "300/160 гр", desc: "Кимпаб с маринованной говядиной и овощами, подается с бульоном" },
+      { id: 1057, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Кимпаб с курицей + бульон", price: 550, weight: "300/160 гр", desc: "Кимпаб с нежной курочкой и овощами, подается с бульоном" },
+      { id: 1058, cuisine: "korea", category: "Стритфуд & Корн-доги", name: "Омлет по-корейски", price: 590, weight: "250 гр", desc: "Яйцо куриное, сосиски, кимчи, помидоры, зелень" },
 
-      // Гунканы и суши
-      { id: 501, category: "Гунканы & Суши", name: "Гункан с креветкой", price: 210, weight: "35 гр", desc: "Креветка, рис, нори, спайс соус" },
-      { id: 502, category: "Гунканы & Суши", name: "Гункан с лососем", price: 210, weight: "35 гр", desc: "Атлантический лосось, рис, спайс соус" },
-      { id: 503, category: "Гунканы & Суши", name: "Гункан с тунцом", price: 210, weight: "35 гр", desc: "Тунец, рис, нори, спайс соус" },
-      { id: 504, category: "Гунканы & Суши", name: "Гункан с угрем", price: 210, weight: "35 гр", desc: "Копченый угорь, рис, спайс соус" },
-      { id: 505, category: "Гунканы & Суши", name: "Суши с креветкой", price: 190, weight: "30 гр", desc: "Креветка, рис" },
-      { id: 506, category: "Гунканы & Суши", name: "Суши с лососем", price: 190, weight: "30 гр", desc: "Атлантический лосось, рис" },
-      { id: 507, category: "Гунканы & Суши", name: "Суши с тунцом", price: 190, weight: "30 гр", desc: "Тунец, рис" },
-      { id: 508, category: "Гунканы & Суши", name: "Суши с угрем", price: 190, weight: "30 гр", desc: "Копченый угорь, рис" }
+      // ════════════════ КОРЕЯ: САЛАТЫ & ЗАКУСКИ ════════════════
+      { id: 1060, cuisine: "korea", category: "Салаты & Закуски", name: "Кимчи", price: 420, weight: "200 гр", desc: "Традиционная пекинская острая капуста ферментированная по-корейски" },
+      { id: 1061, cuisine: "korea", category: "Салаты & Закуски", name: "Битые огурцы", price: 420, weight: "200 гр", desc: "Хрустящие битые огурцы, корейская заправка" },
+      { id: 1062, cuisine: "korea", category: "Салаты & Закуски", name: "Древесные грибы по-корейски", price: 490, weight: "200 гр", desc: "Грибы муэр, болгарский перец, кунжутное масло, соевый соус" },
+      { id: 1063, cuisine: "korea", category: "Салаты & Закуски", name: "Ве-ча", price: 530, weight: "200 гр", desc: "Говядина, огурцы, болгарский перец, чеснок, ростки сои, соевый соус" },
+      { id: 1064, cuisine: "korea", category: "Салаты & Закуски", name: "Жареные баклажаны с томатами", price: 490, weight: "250 гр", desc: "Хрустящие баклажаны, свежие томаты, кешью, соус свит чили" },
+      { id: 1065, cuisine: "korea", category: "Салаты & Закуски", name: "Креветки васаби", price: 670, weight: "6 шт", desc: "Хрустящие тигровые креветки в нежном соусе васаби" },
+      { id: 1066, cuisine: "korea", category: "Салаты & Закуски", name: "Креветки темпура", price: 590, weight: "200 гр", desc: "Тигровые креветки в воздушном кляре с соусом" },
+      { id: 1067, cuisine: "korea", category: "Салаты & Закуски", name: "Запеченные мидии под спайс соусом", price: 590, weight: "5 шт", desc: "Крупные мидии запеченные под острым спайс соусом" },
+
+      // ════════════════ ЯПОНИЯ: РОЛЛЫ ════════════════
+      { id: 101, cuisine: "japan", category: "Роллы", name: "Филадельфия", price: 710, weight: "250 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, рис, нори" },
+      { id: 102, cuisine: "japan", category: "Роллы", name: "Соленая карамель", price: 750, weight: "260 гр", desc: "Тростниковый сахар и морская соль, свежий лосось и сыр Креметте" },
+      { id: 103, cuisine: "japan", category: "Роллы", name: "Апельсиновый самурай", price: 790, weight: "260 гр", desc: "Лосось, авокадо, апельсин, сыр Креметте, соус терияки, масаго" },
+      { id: 104, cuisine: "japan", category: "Роллы", name: "Алоха", price: 750, weight: "250 гр", desc: "Лосось, манго, сыр Креметте, чука, масаго, рис, нори" },
+      { id: 105, cuisine: "japan", category: "Роллы", name: "Канада", price: 850, weight: "255 гр", desc: "Лосось, сыр Креметте, копченый угорь, авокадо, соус унаги, кунжут" },
+      { id: 106, cuisine: "japan", category: "Роллы", name: "Калифорния с креветками", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец, масаго" },
+      { id: 107, cuisine: "japan", category: "Роллы", name: "Бонито с лососем", price: 690, weight: "200 гр", desc: "Атлантический лосось, сыр Креметте, стружка тунца" },
+      { id: 108, cuisine: "japan", category: "Роллы", name: "Двойной улов", price: 720, weight: "250 гр", desc: "Лосось, креветка, сливочный сыр Креметте, огурец" },
+      { id: 109, cuisine: "japan", category: "Роллы", name: "Аляска", price: 710, weight: "250 гр", desc: "Лосось, авокадо, сливочный сыр Креметте, огурец, кунжут" },
+      { id: 110, cuisine: "japan", category: "Роллы", name: "Манго-тунец", price: 690, weight: "255 гр", desc: "Спайс соус, манго, сыр Креметте, темпурная креветка, тунец" },
+      { id: 111, cuisine: "japan", category: "Роллы", name: "Филадельфия с креветкой", price: 790, weight: "260 гр", desc: "Лосось, сыр Креметте, тигровые креветки" },
+      { id: 112, cuisine: "japan", category: "Роллы", name: "Калифорния", price: 610, weight: "230 гр", desc: "Краб микс, сливочный сыр Креметте, огурец, масаго" },
+      { id: 113, cuisine: "japan", category: "Роллы", name: "Ролл с креветкой", price: 670, weight: "230 гр", desc: "Тигровые креветки, сыр Креметте, огурец" },
+      { id: 114, cuisine: "japan", category: "Роллы", name: "Филадельфия MIX", price: 750, weight: "260 гр", desc: "Лосось, копченый угорь, сливочный сыр Креметте, рис" },
+      { id: 115, cuisine: "japan", category: "Роллы", name: "Калифорния с лососем", price: 710, weight: "230 гр", desc: "Атлантический лосось, сливочный сыр Креметте, огурец, масаго" },
+      { id: 116, cuisine: "japan", category: "Роллы", name: "MIX ролл", price: 670, weight: "255 гр", desc: "Атлантический лосось, краб микс, сыр Креметте, масаго" },
+      { id: 117, cuisine: "japan", category: "Роллы", name: "Морской флот", price: 870, weight: "300 гр", desc: "Сочный тунец, нежнейший лосось, креветки, копченый угорь" },
+      { id: 118, cuisine: "japan", category: "Роллы", name: "Калифорния с угрем", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, огурец, масаго" },
+      { id: 119, cuisine: "japan", category: "Роллы", name: "Острый угорь", price: 690, weight: "230 гр", desc: "Копченый угорь, сыр Креметте, огурец, шрирача" },
+
+      // ════════════════ ЯПОНИЯ: ЗАПЕЧЕННЫЕ & ГОРЯЧИЕ ════════════════
+      { id: 401, cuisine: "japan", category: "Запеченные", name: "Запеченный краб", price: 590, weight: "280 гр", desc: "Краб фарш, масаго, сыр Креметте, сырный соус" },
+      { id: 402, cuisine: "japan", category: "Запеченные", name: "Огайо", price: 600, weight: "280 гр", desc: "Краб фарш, масаго, сыр Креметте, сырный соус" },
+      { id: 403, cuisine: "japan", category: "Запеченные", name: "Чиз хот", price: 650, weight: "290 гр", desc: "Краб фарш, сыр Креметте, сыр чеддер, соус унаги, кунжут" },
+      { id: 404, cuisine: "japan", category: "Запеченные", name: "Запеченный угорь", price: 670, weight: "280 гр", desc: "Копченый угорь, авокадо, сыр Креметте, соус унаги, кунжут" },
+      { id: 405, cuisine: "japan", category: "Запеченные", name: "Запеченный чикен", price: 620, weight: "280 гр", desc: "Куриное мясо, авокадо, сыр Креметте, соус терияки" },
+      { id: 406, cuisine: "japan", category: "Запеченные", name: "Запеченный лосось", price: 670, weight: "280 гр", desc: "Атлантический лосось, огурец, спайс и сырный соус" },
+      { id: 407, cuisine: "japan", category: "Запеченные", name: "Запеченная креветка", price: 650, weight: "280 гр", desc: "Тигровые креветки, сыр Креметте, сырный соус" },
+      { id: 301, cuisine: "japan", category: "Горячие", name: "Горячий ролл с угрем", price: 670, weight: "260 гр", desc: "Копченый угорь, сыр Креметте, авокадо, панировка" },
+      { id: 302, cuisine: "japan", category: "Горячие", name: "Эби хот", price: 630, weight: "260 гр", desc: "Креветки, сыр Креметте, авокадо, панировка" },
+      { id: 303, cuisine: "japan", category: "Горячие", name: "Кани хот", price: 590, weight: "260 гр", desc: "Краб фарш, масаго, авокадо, панировка" },
+      { id: 304, cuisine: "japan", category: "Горячие", name: "Темпура лосось", price: 670, weight: "260 гр", desc: "Атлантический лосось, сыр Креметте, авокадо, панировка" },
+
+      // ════════════════ ЯПОНИЯ: МАКИ, СУШИ & СЭНДВИЧИ ════════════════
+      { id: 201, cuisine: "japan", category: "Маки", name: "Маки с огурцом", price: 270, weight: "115 гр", desc: "Рис, нори, огурец, кунжут" },
+      { id: 202, cuisine: "japan", category: "Маки", name: "Маки с авокадо", price: 290, weight: "115 гр", desc: "Рис, нори, авокадо" },
+      { id: 203, cuisine: "japan", category: "Маки", name: "Маки с лососем", price: 360, weight: "115 гр", desc: "Лосось, рис, нори" },
+      { id: 204, cuisine: "japan", category: "Маки", name: "Маки с угрем", price: 320, weight: "130 гр", desc: "Угорь копченый, огурец, рис, нори" },
+      { id: 205, cuisine: "japan", category: "Маки", name: "Маки с тунцом", price: 320, weight: "115 гр", desc: "Тунец, рис, нори" },
+      { id: 206, cuisine: "japan", category: "Маки", name: "Маки с креветкой", price: 320, weight: "115 гр", desc: "Креветка, рис, нори" },
+      { id: 501, cuisine: "japan", category: "Гунканы & Суши", name: "Гункан с креветкой (спайс)", price: 210, weight: "35 гр", desc: "Креветка, рис, нори, спайс соус" },
+      { id: 502, cuisine: "japan", category: "Гунканы & Суши", name: "Гункан с лососем (спайс)", price: 210, weight: "35 гр", desc: "Атлантический лосось, рис, спайс соус" },
+      { id: 505, cuisine: "japan", category: "Гунканы & Суши", name: "Суши с креветкой", price: 190, weight: "30 гр", desc: "Креветка, рис" },
+      { id: 506, cuisine: "japan", category: "Гунканы & Суши", name: "Суши с лососем", price: 190, weight: "30 гр", desc: "Атлантический лосось, рис" },
+      { id: 601, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Сэндвич с крабом", price: 490, weight: "280 гр", desc: "Онигири-сэндвич с краб миксом и нори" },
+      { id: 602, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Сэндвич с копченым угрем", price: 600, weight: "280 гр", desc: "Онигири-сэндвич с угрем, сыром и унаги" },
+      { id: 603, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Сэндвич с лососем", price: 650, weight: "280 гр", desc: "Онигири-сэндвич со свежим лососем" },
+      { id: 604, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Мисо суп с креветками", price: 450, weight: "450 гр", desc: "Креветки, бульон, тофу, вакаме, грибы намеко, лук" },
+      { id: 605, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Мисо суп с лососем", price: 490, weight: "450 гр", desc: "Лосось, бульон, тофу, вакаме, грибы намеко, лук" },
+      { id: 606, cuisine: "japan", category: "Сэндвичи & Закуски", name: "Салат Чука", price: 360, weight: "200 гр", desc: "Водоросли чука, ореховый соус, лимон" }
     ];
 
     var cart = {};
+    var currentCuisine = "korea"; // по умолчанию Корея
     var activeCategory = "Все";
     var currentOrderType = "dine_in";
+
+    // Смена кухни (Корея / Япония)
+    function setCuisine(c) {
+      currentCuisine = c;
+      activeCategory = "Все";
+
+      var btnK = document.getElementById('cuisine-korea');
+      var btnJ = document.getElementById('cuisine-japan');
+
+      if (c === 'korea') {
+        btnK.className = 'py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md flex items-center justify-center gap-1.5';
+        btnJ.className = 'py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all text-zinc-400 hover:text-white flex items-center justify-center gap-1.5';
+      } else {
+        btnJ.className = 'py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md flex items-center justify-center gap-1.5';
+        btnK.className = 'py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase transition-all text-zinc-400 hover:text-white flex items-center justify-center gap-1.5';
+      }
+
+      renderCategories();
+      renderMenu();
+    }
 
     function renderCategories() {
       var container = document.getElementById('category-bar');
       if (!container) return;
-      var categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши"];
+
+      var categories = [];
+      if (currentCuisine === 'korea') {
+        categories = ["Все", "Рамёны & Супы", "Токпокки", "Горячее & Вок", "Стритфуд & Корн-доги", "Салаты & Закуски"];
+      } else {
+        categories = ["Все", "Роллы", "Запеченные", "Горячие", "Маки", "Гунканы & Суши", "Сэндвичи & Закуски"];
+      }
       
       var html = '';
       for (var i = 0; i < categories.length; i++) {
@@ -278,46 +386,49 @@
 
       var filtered = [];
       for (var i = 0; i < MENU.length; i++) {
-        if (activeCategory === "Все" || MENU[i].category === activeCategory) {
-          filtered.push(MENU[i]);
+        var item = MENU[i];
+        if (item.cuisine === currentCuisine) {
+          if (activeCategory === "Все" || item.category === activeCategory) {
+            filtered.push(item);
+          }
         }
       }
 
       var html = '';
       for (var j = 0; j < filtered.length; j++) {
-        var item = filtered[j];
-        var qty = cart[item.id] || 0;
+        var it = filtered[j];
+        var qty = cart[it.id] || 0;
 
         var btnHtml = '';
         if (qty === 0) {
-          btnHtml = '<button onclick="event.stopPropagation(); addToCart(' + item.id + ')" class="bg-zinc-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-fuchsia-600 active:scale-90 text-zinc-200 hover:text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-lg transition-all border border-zinc-700/60 shadow-sm">+</button>';
+          btnHtml = '<button onclick="event.stopPropagation(); addToCart(' + it.id + ')" class="bg-zinc-800 hover:bg-gradient-to-r hover:from-purple-600 hover:to-fuchsia-600 active:scale-90 text-zinc-200 hover:text-white w-8 h-8 rounded-xl flex items-center justify-center font-bold text-lg transition-all border border-zinc-700/60 shadow-sm">+</button>';
         } else {
           btnHtml = '<div onclick="event.stopPropagation()" class="flex items-center bg-zinc-800 border border-fuchsia-500/50 rounded-xl p-0.5 shadow-[0_0_10px_rgba(217,70,239,0.25)]">' +
-                    '<button onclick="removeFromCart(' + item.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>' +
+                    '<button onclick="removeFromCart(' + it.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">−</button>' +
                     '<span class="w-5 text-center text-xs font-bold text-fuchsia-400">' + qty + '</span>' +
-                    '<button onclick="addToCart(' + item.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>' +
+                    '<button onclick="addToCart(' + it.id + ')" class="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-300 hover:text-white text-sm font-bold active:scale-90">+</button>' +
                     '</div>';
         }
 
-        html += '<div onclick="openDishModal(' + item.id + ')" class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-purple-500/40 transition-all cursor-pointer">' +
+        html += '<div onclick="openDishModal(' + it.id + ')" class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex gap-3 hover:border-purple-500/40 transition-all cursor-pointer">' +
                   '<div class="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-950 border border-purple-950/60 flex items-center justify-center">' +
                     '<div class="flex flex-col items-center justify-center text-center p-1">' +
                       '<span class="text-2xl">🥢</span>' +
                       '<span class="text-[9px] font-black tracking-wider uppercase text-fuchsia-400/80 mt-1">Фото скоро</span>' +
                     '</div>' +
-                    '<img src="/images/' + item.id + '.jpg" alt="' + item.name + '" class="absolute inset-0 w-full h-full object-cover z-10" onload="this.style.display=\'block\'" onerror="this.style.display=\'none\'" style="display:none">' +
+                    '<img src="/images/' + it.id + '.jpg" alt="' + it.name + '" class="absolute inset-0 w-full h-full object-cover z-10" onload="this.style.display=\'block\'" onerror="this.style.display=\'none\'" style="display:none">' +
                     '<div class="absolute bottom-1 right-1 z-20 bg-black/60 text-[9px] px-1 py-0.5 rounded text-zinc-300">🔍</div>' +
                   '</div>' +
                   '<div class="flex-1 flex flex-col justify-between py-0.5">' +
                     '<div>' +
                       '<div class="flex items-start justify-between gap-1">' +
-                        '<h4 class="font-bold text-sm text-zinc-100 leading-tight">' + item.name + '</h4>' +
-                        '<span class="text-[10px] text-zinc-500 font-medium shrink-0">' + item.weight + '</span>' +
+                        '<h4 class="font-bold text-sm text-zinc-100 leading-tight">' + it.name + '</h4>' +
+                        '<span class="text-[10px] text-zinc-500 font-medium shrink-0">' + it.weight + '</span>' +
                       '</div>' +
-                      '<p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">' + item.desc + '</p>' +
+                      '<p class="text-[11px] text-zinc-400 line-clamp-2 mt-1 leading-snug">' + it.desc + '</p>' +
                     '</div>' +
                     '<div class="flex items-center justify-between mt-2 pt-1">' +
-                      '<div class="text-fuchsia-400 font-black text-sm">' + item.price + ' ₽</div>' +
+                      '<div class="text-fuchsia-400 font-black text-sm">' + it.price + ' ₽</div>' +
                       '<div>' + btnHtml + '</div>' +
                     '</div>' +
                   '</div>' +
@@ -396,7 +507,7 @@
     function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
     function closeSuccessModal() { document.getElementById('success-modal').classList.add('hidden'); }
 
-    // 100% ПРЕДОПЛАТА СБП: СОЗДАНИЕ ПЛАТЕЖА
+    // 100% ПРЕДОПЛАТА СБП
     async function submitOrder() {
       var name = document.getElementById('cust-name').value.trim();
       var phone = document.getElementById('cust-phone').value.trim();
@@ -446,7 +557,6 @@
           cart = {};
           updateUI();
           closeCheckoutModal();
-          // Мгновенный переход на шлюз СБП
           window.location.href = data.paymentUrl;
         } else {
           alert('Ошибка формирования счета СБП');
@@ -466,7 +576,6 @@
           if (nameInput) nameInput.value = tg.initDataUnsafe.user.first_name;
         }
 
-        // Проверяем, вернулся ли гость после успешной 100% оплаты СБП
         var urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('paid') === 'true') {
           var paidNum = urlParams.get('orderNum');
